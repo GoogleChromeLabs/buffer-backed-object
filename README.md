@@ -15,7 +15,7 @@ When using [Web Workers], the performance of `postMessage()` (or the [structured
 `StructuredDataView` interprets the given `ArrayBuffer` as an object with the given schema:
 
 ```js
-import {StructuredDataView} from "structured-array-view";
+import {StructuredDataView} from "@surma/structured-data-view";
 
 const {buffer} = new ArrayBuffer(100);
 const view = new StructuredDataView({
@@ -40,7 +40,7 @@ console.log(JSON.stringify(view)); // {"id": 3, ...}
 `ArrayOfStructuredDataView` interprets the given `ArrayBuffer` as an _array_ of objects with the given schema:
 
 ```js
-import {ArrayOfStructuredDataViews, StructuredDataView} from "structured-array-view";
+import {ArrayOfStructuredDataViews, StructuredDataView} from "@surma/structured-data-view";
 
 const {buffer} = new ArrayBuffer(100);
 const view = new ArrayOfStructuredDataViews({

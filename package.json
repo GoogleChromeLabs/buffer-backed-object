@@ -3,17 +3,17 @@
   "version": "0.0.1",
   "description": "",
   "source": "aosv.js",
-  "module": "dist/aosv.js",
+  "module": "dist/aosv.modern.js",
   "main": "dist/aosv.umd.js",
   "scripts": {
-    "build": "microbundle -f es,umd",
+    "build": "microbundle -f modern && microbundle -f umd",
     "test": "karmatic"
   },
   "author": "Surma <surma@surma.dev>",
   "license": "Apache-2.0",
   "devDependencies": {
     "karmatic": "^1.4.0",
-    "microbundle": "^0.11.0",
+    "microbundle": "^0.12.0-next.8",
     "webpack": "^4.42.1"
   }
 }

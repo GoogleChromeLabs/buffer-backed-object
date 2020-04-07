@@ -91,7 +91,7 @@ Returns an object that works on `buffer` at the given `byteOffset`. The properti
 
 ### `new ArrayOfStructuredDataViews(buffer, descriptors, {byteOffset = 0, length = 0})`
 
-Like `StructuredDataView`, but returns an _array_ of `StructuredDataView`s. If `length` is 0, as much of the buffer is used as possible.
+Like `StructuredDataView`, but returns an _array_ of `StructuredDataView`s. If `length` is 0, as much of the buffer is used as possible. The array is populated lazily under the hood so the `StructuredDataView` objects will only be created when accessed.
 
 ### `structSize(descriptors)`
 

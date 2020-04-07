@@ -1,6 +1,6 @@
 {
   "name": "@surma/structured-data-view",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "source": "aosv.js",
   "module": "dist/structured-data-view.modern.js",

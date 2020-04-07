@@ -82,6 +82,7 @@ Returns an object that works on `buffer` at the given `byteOffset`. The properti
 - `StructuredDataView.BigUint64({endianess = 'big'})`: An 64-bit unsigned [`BigInt`][bigint]
 - `StructuredDataView.Float32({endianess = 'big'})`: An 32-bit IEEE754 float
 - `StructuredDataView.Float64({endianess = 'big'})`: An 64-bit IEEE754 float (“double”)
+- `StructuredDataView.UTF8String(maxBytes)`: A UTF-8 encoded string with the given maximum number of bytes. Trailing NULL bytes will be trimmed after decoding.
 - `StructuredDataView.ArrayBuffer(size)`: An `ArrayBuffer` of the given size
 - `StructuredDataView.NestedStructuredDataView(descriptors)`: A nested `StructuredDataView` with the given descriptors
 - `StructuredDataView.NestedArrayOfStructuredDataViews(descriptors)`: A nested `ArrayOfStructuredDataViews` with the given descriptors

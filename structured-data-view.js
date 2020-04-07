@@ -93,13 +93,13 @@ export function ArrayOfStructuredDataViews(
                 itemOffset + descriptor.offset,
                 value
               );
-            }
+            },
           });
         }
         Object.freeze(target[idx]);
       }
       return target[idx];
-    }
+    },
   });
 }
 
@@ -119,8 +119,8 @@ export function StructuredDataView(
   "Float32",
   "Float64",
   "BigInt64",
-  "BigUint64"
-].forEach(name => {
+  "BigUint64",
+].forEach((name) => {
   StructuredDataView[name] = ({ endianess = "big" } = {}) => {
     if (endianess !== "big" && endianess !== "little") {
       throw Error("Endianess needs to be either 'big' or 'little'");
@@ -131,7 +131,7 @@ export function StructuredDataView(
       get: (dataView, byteOffset) =>
         dataView[`get${name}`](byteOffset, littleEndian),
       set: (dataView, byteOffset, value) =>
-        dataView[`set${name}`](byteOffset, value, littleEndian)
+        dataView[`set${name}`](byteOffset, value, littleEndian),
     };
   };
 });
@@ -139,37 +139,37 @@ export function StructuredDataView(
 StructuredDataView.Uint8 = () => ({
   size: 1,
   get: (dataView, byteOffset) => dataView.getUint8(byteOffset),
-  set: (dataView, byteOffset, value) => dataView.setUint8(byteOffset, value)
+  set: (dataView, byteOffset, value) => dataView.setUint8(byteOffset, value),
 });
 
 StructuredDataView.Int8 = () => ({
   size: 1,
   get: (dataView, byteOffset) => dataView.getInt8(byteOffset),
-  set: (dataView, byteOffset, value) => dataView.setInt8(byteOffset, value)
+  set: (dataView, byteOffset, value) => dataView.setInt8(byteOffset, value),
 });
 
-StructuredDataView.ArrayBuffer = size => ({
+StructuredDataView.ArrayBuffer = (size) => ({
   size,
   get: (dataView, byteOffset) =>
     dataView.buffer.subarray(byteOffset, byteOffset + size),
   set: (dataView, byteOffset, value) =>
     new Uint8Array(dataView.buffer.subarray(byteOffset, byteOffset + size)).set(
       new Uint8Array(value)
-    )
+    ),
 });
 
-StructuredDataView.NestedStructuredDataView = descriptors => {
+StructuredDataView.NestedStructuredDataView = (descriptors) => {
   const size = structSize(descriptors);
   return {
     size,
     get: (dataView, byteOffset) =>
       new ArrayOfStructuredDataViews(dataView.buffer, descriptors, {
         byteOffset,
-        length: 1
+        length: 1,
       })[0],
     set: (dataView, byteOffset, value) => {
       throw Error("Can’t set an entire struct");
-    }
+    },
   };
 };
 
@@ -180,14 +180,30 @@ StructuredDataView.NestedArrayOfStructuredDataViews = (length, descriptors) => {
     get: (dataView, byteOffset) =>
       new ArrayOfStructuredDataViews(dataView.buffer, descriptors, {
         byteOffset,
-        length
+        length,
       }),
     set: (dataView, byteOffset, value) => {
       throw Error("Can’t set an entire array");
-    }
+    },
   };
 };
 
-StructuredDataView.reserved = size => ({ size });
+StructuredDataView.UTF8String = (maxBytes) => {
+  return {
+    size: maxBytes,
+    get: (dataView, byteOffset) =>
+      new TextDecoder()
+        .decode(new Uint8Array(dataView.buffer, byteOffset, maxBytes))
+        .replace(/\u0000+$/, ""),
+    set: (dataView, byteOffset, value) => {
+      const encoding = new TextEncoder().encode(value);
+      const target = new Uint8Array(dataView.buffer, byteOffset, maxBytes);
+      target.fill(0);
+      target.set(encoding.subarray(0, maxBytes));
+    },
+  };
+};
+
+StructuredDataView.reserved = (size) => ({ size });
 
 export default StructuredDataView;

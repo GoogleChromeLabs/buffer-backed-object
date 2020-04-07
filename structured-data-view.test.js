@@ -14,38 +14,40 @@
 import {
   ArrayOfStructuredDataViews,
   StructuredDataView,
-  structSize
+  structSize,
 } from "./structured-data-view.js";
 
-describe("ArrayOfStructuredDataViews", function() {
-  it("calculates the size of a struct correctly", function() {
+describe("structSize", function () {
+  it("calculates the size of a struct correctly", function () {
     const size = structSize({
       id: StructuredDataView.Uint8(),
       x: StructuredDataView.Float64(),
       y: StructuredDataView.Int16(),
       z: StructuredDataView.BigUint64(),
-      _: StructuredDataView.reserved(1)
+      _: StructuredDataView.reserved(1),
     });
     expect(size).toBe(20);
   });
+});
 
-  it("calculates length correctly", function() {
+describe("ArrayOfStructuredDataViews", function () {
+  it("calculates length correctly", function () {
     // Add one stray byte
     const { buffer } = new Uint8Array([0, 0, 1, 0, 2, 0, 1]);
     const aosv = new ArrayOfStructuredDataViews(buffer, {
       id: StructuredDataView.Uint8(),
-      _: StructuredDataView.reserved(1)
+      _: StructuredDataView.reserved(1),
     });
     expect(aosv.length).toBe(3);
   });
 
-  it("decodes items correctly", function() {
+  it("decodes items correctly", function () {
     const descriptor = {
       id: StructuredDataView.Uint8(),
       x: StructuredDataView.Float64({ endianess: "big" }),
       y: StructuredDataView.Float64({ endianess: "little" }),
       texture: StructuredDataView.Int32(),
-      _: StructuredDataView.reserved(1)
+      _: StructuredDataView.reserved(1),
     };
 
     const buffer = new ArrayBuffer(structSize(descriptor) * 2);
@@ -69,16 +71,16 @@ describe("ArrayOfStructuredDataViews", function() {
     expect(aosv[1].texture).toBe(10);
   });
 
-  it("can have an offset", function() {
+  it("can have an offset", function () {
     const descriptor = {
       id: StructuredDataView.Uint8(),
-      _: StructuredDataView.reserved(1)
+      _: StructuredDataView.reserved(1),
     };
     const buffer = new ArrayBuffer(structSize(descriptor) * 4 + 1);
     const dataView = new DataView(buffer);
     const aosv = new ArrayOfStructuredDataViews(buffer, descriptor, {
       byteOffset: 1,
-      length: 2
+      length: 2,
     });
     expect(aosv.length).toBe(2);
     aosv[0].id = 1;
@@ -86,13 +88,13 @@ describe("ArrayOfStructuredDataViews", function() {
     expect(dataView.getUint8(1)).toBe(1);
   });
 
-  it("handles nested AOSV", function() {
+  it("handles nested AOSV", function () {
     const descriptors = {
       id: StructuredDataView.Uint8(),
       vertices: StructuredDataView.NestedArrayOfStructuredDataViews(3, {
         x: StructuredDataView.Float64(),
-        y: StructuredDataView.Float64()
-      })
+        y: StructuredDataView.Float64(),
+      }),
     };
     const buffer = new ArrayBuffer(structSize(descriptors) * 3);
     const aosv = new ArrayOfStructuredDataViews(buffer, descriptors);
@@ -108,18 +110,22 @@ describe("ArrayOfStructuredDataViews", function() {
     expect(JSON.stringify(aosv[2])).toBe(
       JSON.stringify({
         id: 1,
-        vertices: [{ x: 0, y: 1 }, { x: 2, y: 3 }, { x: 4, y: 5 }]
+        vertices: [
+          { x: 0, y: 1 },
+          { x: 2, y: 3 },
+          { x: 4, y: 5 },
+        ],
       })
     );
   });
 
-  it("handles nested structures", function() {
+  it("handles nested structures", function () {
     const descriptors = {
       id: StructuredDataView.Uint8(),
       pos: StructuredDataView.NestedStructuredDataView({
         x: StructuredDataView.Float64(),
-        y: StructuredDataView.Float64()
-      })
+        y: StructuredDataView.Float64(),
+      }),
     };
     const buffer = new ArrayBuffer(structSize(descriptors) * 3);
     const aosv = new ArrayOfStructuredDataViews(buffer, descriptors);
@@ -135,35 +141,35 @@ describe("ArrayOfStructuredDataViews", function() {
       JSON.stringify([
         { id: 0, pos: { x: 0, y: 0 } },
         { id: 0, pos: { x: 0, y: 0 } },
-        { id: 1, pos: { x: 3, y: 2 } }
+        { id: 1, pos: { x: 3, y: 2 } },
       ])
     );
   });
 
-  it("can return the buffer", function() {
+  it("can return the buffer", function () {
     const buffer = new ArrayBuffer(22);
     const aosv = new ArrayOfStructuredDataViews(buffer, {
-      x: StructuredDataView.Uint8()
+      x: StructuredDataView.Uint8(),
     });
     expect(aosv.buffer).toBe(buffer);
   });
 
-  it("encodes to JSON", function() {
+  it("encodes to JSON", function () {
     const { buffer } = new Uint8Array([0, 0, 1, 0, 2, 0, 1]);
     const aosv = new ArrayOfStructuredDataViews(buffer, {
       id: StructuredDataView.Uint8(),
-      _: StructuredDataView.reserved(1)
+      _: StructuredDataView.reserved(1),
     });
     expect(JSON.stringify(aosv)).toBe(
       JSON.stringify([{ id: 0 }, { id: 1 }, { id: 2 }])
     );
   });
 
-  it("can write items", function() {
+  it("can write items", function () {
     const descriptor = {
       id: StructuredDataView.Uint8(),
       x: StructuredDataView.Float64(),
-      _: StructuredDataView.reserved(1)
+      _: StructuredDataView.reserved(1),
     };
     const buffer = new ArrayBuffer(structSize(descriptor) * 2);
     const dataView = new DataView(buffer);
@@ -174,10 +180,10 @@ describe("ArrayOfStructuredDataViews", function() {
     expect(dataView.getFloat64(11)).toBe(20);
   });
 
-  it("handles filter()", function() {
+  it("handles filter()", function () {
     const descriptor = {
       id: StructuredDataView.Uint8(),
-      data: StructuredDataView.Uint8(1)
+      data: StructuredDataView.Uint8(),
     };
     const { buffer } = new Uint8Array([0, 10, 1, 11, 2, 12, 3, 13]);
     const aosv = new ArrayOfStructuredDataViews(buffer, descriptor);
@@ -187,10 +193,10 @@ describe("ArrayOfStructuredDataViews", function() {
     expect(aosv[2].data).toBe(99);
   });
 
-  it("rejects new properties", function() {
+  it("rejects new properties", function () {
     const descriptor = {
       id: StructuredDataView.Uint8(),
-      data: StructuredDataView.Uint8(1)
+      data: StructuredDataView.Uint8(),
     };
     const { buffer } = new Uint8Array([0, 10, 1, 11, 2, 12, 3, 13]);
     const aosv = new ArrayOfStructuredDataViews(buffer, descriptor);
@@ -198,16 +204,31 @@ describe("ArrayOfStructuredDataViews", function() {
       aosv[0].lol = 4;
     }).toThrow();
   });
+
+  it("can handle UTF8 strings", function () {
+    const descriptor = {
+      name: StructuredDataView.UTF8String(32),
+      id: StructuredDataView.Uint8(),
+    };
+    const buffer = new ArrayBuffer(structSize(descriptor) * 2);
+    const aosv = new ArrayOfStructuredDataViews(buffer, descriptor);
+    aosv[0].name = "Surma";
+    aosv[1].name = "Jason";
+    const name1 = new TextDecoder().decode(new Uint8Array(buffer, 0, 5));
+    const name2 = new TextDecoder().decode(new Uint8Array(buffer, 33, 5));
+    expect(name1).toBe("Surma");
+    expect(name2).toBe("Jason");
+  });
 });
 
-describe("StructuredDataView", function() {
-  it("decodes items correctly", function() {
+describe("StructuredDataView", function () {
+  it("decodes items correctly", function () {
     const descriptor = {
       id: StructuredDataView.Uint8(),
       x: StructuredDataView.Float64({ endianess: "big" }),
       y: StructuredDataView.Float64({ endianess: "little" }),
       texture: StructuredDataView.Int32(),
-      _: StructuredDataView.reserved(1)
+      _: StructuredDataView.reserved(1),
     };
 
     const buffer = new ArrayBuffer(structSize(descriptor));

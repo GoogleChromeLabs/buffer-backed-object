@@ -1,12 +1,12 @@
 {
-  "name": "array-of-structs-view",
+  "name": "structured-data-view",
   "version": "0.0.1",
   "description": "",
   "source": "aosv.js",
-  "module": "dist/aosv.modern.js",
-  "main": "dist/aosv.umd.js",
+  "module": "dist/structured-data-view.modern.js",
+  "main": "dist/structured-data-view.umd.js",
   "scripts": {
-    "build": "microbundle -f modern && microbundle -f umd",
+    "build": "microbundle -f modern structured-data-view.js && microbundle -f umd structured-data-view.js",
     "test": "karmatic"
   },
   "author": "Surma <surma@surma.dev>",

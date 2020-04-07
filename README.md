@@ -1,6 +1,4 @@
-# `ArrayOfStructsView`
-
-or `Structured DataView`?
+# `StructuredDataView`
 
 Example:
 ```js

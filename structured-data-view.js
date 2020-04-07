@@ -27,7 +27,7 @@ export function structSize(descriptors) {
   return stride;
 }
 
-export function ArrayOfStructsView(
+export function ArrayOfStructuredDataViews(
   buffer,
   descriptors,
   { byteOffset = 0, length = 0 } = {}
@@ -103,6 +103,14 @@ export function ArrayOfStructsView(
   });
 }
 
+export function StructuredDataView(
+  buffer,
+  descriptors,
+  { byteOffset = 0 } = {}
+) {
+  return ArrayOfStructuredDataViews(buffer, descriptors, { byteOffset })[0];
+}
+
 [
   "Uint16",
   "Uint32",
@@ -113,7 +121,7 @@ export function ArrayOfStructsView(
   "BigInt64",
   "BigUint64"
 ].forEach(name => {
-  ArrayOfStructsView[name] = ({ endianess = "big" } = {}) => {
+  StructuredDataView[name] = ({ endianess = "big" } = {}) => {
     if (endianess !== "big" && endianess !== "little") {
       throw Error("Endianess needs to be either 'big' or 'little'");
     }
@@ -128,19 +136,19 @@ export function ArrayOfStructsView(
   };
 });
 
-ArrayOfStructsView.Uint8 = () => ({
+StructuredDataView.Uint8 = () => ({
   size: 1,
   get: (dataView, byteOffset) => dataView.getUint8(byteOffset),
   set: (dataView, byteOffset, value) => dataView.setUint8(byteOffset, value)
 });
 
-ArrayOfStructsView.Int8 = () => ({
+StructuredDataView.Int8 = () => ({
   size: 1,
   get: (dataView, byteOffset) => dataView.getInt8(byteOffset),
   set: (dataView, byteOffset, value) => dataView.setInt8(byteOffset, value)
 });
 
-ArrayOfStructsView.ArrayBuffer = size => ({
+StructuredDataView.ArrayBuffer = size => ({
   size,
   get: (dataView, byteOffset) =>
     dataView.buffer.subarray(byteOffset, byteOffset + size),
@@ -150,12 +158,12 @@ ArrayOfStructsView.ArrayBuffer = size => ({
     )
 });
 
-ArrayOfStructsView.StructuredDataView = descriptors => {
+StructuredDataView.StructuredDataView = descriptors => {
   const size = structSize(descriptors);
   return {
     size,
     get: (dataView, byteOffset) =>
-      new ArrayOfStructsView(dataView.buffer, descriptors, {
+      new ArrayOfStructuredDataViews(dataView.buffer, descriptors, {
         byteOffset,
         length: 1
       })[0],
@@ -165,12 +173,12 @@ ArrayOfStructsView.StructuredDataView = descriptors => {
   };
 };
 
-ArrayOfStructsView.ArrayOfStructsView = (length, descriptors) => {
+StructuredDataView.ArrayOfStructuredDataViews = (length, descriptors) => {
   const size = structSize(descriptors);
   return {
     size: size * length,
     get: (dataView, byteOffset) =>
-      new ArrayOfStructsView(dataView.buffer, descriptors, {
+      new ArrayOfStructuredDataViews(dataView.buffer, descriptors, {
         byteOffset,
         length
       }),
@@ -180,6 +188,6 @@ ArrayOfStructsView.ArrayOfStructsView = (length, descriptors) => {
   };
 };
 
-ArrayOfStructsView.reserved = size => ({ size });
+StructuredDataView.reserved = size => ({ size });
 
-export default ArrayOfStructsView;
+export default StructuredDataView;

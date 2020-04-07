@@ -3,7 +3,7 @@
 **`StructuredDataView` gives you buffer-backed objects**. It takes a schema definition to make [`ArrayBuffer`][arraybuffer]s more convenient to use and utilizes [`DataView`][dataview] under the hood.
 
 ```
-npm i -S structured-array-view
+npm i -S @surma/structured-data-view
 ```
 
 ## Why?

@@ -19,6 +19,14 @@ function betterIsNaN(s) {
   return isNaN(s);
 }
 
+export function structSize(descriptors) {
+  let stride = 0;
+  for (const { size } of Object.values(descriptors)) {
+    stride += size;
+  }
+  return stride;
+}
+
 export function ArrayOfStructsView(buffer, descriptors) {
   const dataView = new DataView(buffer);
   // Accumulate the size of one struct

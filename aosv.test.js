@@ -11,9 +11,20 @@
  * limitations under the License.
  */
 
-import { ArrayOfStructsView } from "./aosv.js";
+import { ArrayOfStructsView, structSize } from "./aosv.js";
 
 describe("ArrayOfStructsView", function() {
+  it("calculates the size of a struct correctly", function() {
+    const size = structSize({
+      id: ArrayOfStructsView.Uint8(),
+      x: ArrayOfStructsView.Float64(),
+      y: ArrayOfStructsView.Int16(),
+      z: ArrayOfStructsView.BigUint64(),
+      _: ArrayOfStructsView.reserved(1)
+    });
+    expect(size).toBe(20);
+  });
+
   it("calculates length correctly", function() {
     // Add one stray byte
     const { buffer } = new Uint8Array([0, 0, 1, 0, 2, 0, 1]);
@@ -25,7 +36,15 @@ describe("ArrayOfStructsView", function() {
   });
 
   it("decodes items correctly", function() {
-    const buffer = new ArrayBuffer(22 * 2);
+    const descriptor = {
+      id: ArrayOfStructsView.Uint8(),
+      x: ArrayOfStructsView.Float64({ endianess: "big" }),
+      y: ArrayOfStructsView.Float64({ endianess: "little" }),
+      texture: ArrayOfStructsView.Int32(),
+      _: ArrayOfStructsView.reserved(1)
+    };
+
+    const buffer = new ArrayBuffer(structSize(descriptor) * 2);
     const dataView = new DataView(buffer);
     dataView.setUint8(0 + 0, 1);
     dataView.setUint8(22 + 0, 2);
@@ -35,13 +54,7 @@ describe("ArrayOfStructsView", function() {
     dataView.setFloat64(22 + 9, 50, true);
     dataView.setInt32(0 + 17, 9);
     dataView.setInt32(22 + 17, 10);
-    const aosv = new ArrayOfStructsView(buffer, {
-      id: ArrayOfStructsView.Uint8(),
-      x: ArrayOfStructsView.Float64({ endianess: "big" }),
-      y: ArrayOfStructsView.Float64({ endianess: "little" }),
-      texture: ArrayOfStructsView.Int32(),
-      _: ArrayOfStructsView.reserved(1)
-    });
+    const aosv = new ArrayOfStructsView(buffer, descriptor);
     expect(aosv[0].id).toBe(1);
     expect(aosv[1].id).toBe(2);
     expect(aosv[0].x).toBe(20);
@@ -72,13 +85,14 @@ describe("ArrayOfStructsView", function() {
   });
 
   it("can write items", function() {
-    const buffer = new ArrayBuffer(10 * 2);
-    const dataView = new DataView(buffer);
-    const aosv = new ArrayOfStructsView(buffer, {
+    const descriptor = {
       id: ArrayOfStructsView.Uint8(),
       x: ArrayOfStructsView.Float64(),
       _: ArrayOfStructsView.reserved(1)
-    });
+    };
+    const buffer = new ArrayBuffer(structSize(descriptor) * 2);
+    const dataView = new DataView(buffer);
+    const aosv = new ArrayOfStructsView(buffer, descriptor);
     aosv[0].x = 10;
     aosv[1].x = 20;
     expect(dataView.getFloat64(1)).toBe(10);

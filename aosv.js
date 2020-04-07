@@ -6,18 +6,15 @@ function betterIsNaN(s) {
   return isNaN(s);
 }
 
-export function ArrayOfStructsView(buffer, descriptor) {
+export function ArrayOfStructsView(buffer, descriptors) {
   const dataView = new DataView(buffer);
   let stride = 0;
-  const augmentedDescriptor = Object.fromEntries(
-    Object.entries(descriptor)
-      .map(([name, descriptor]) => {
-        const newDescriptor = Object.assign({}, descriptor, { offset: stride });
-        stride += descriptor.size;
-        return [name, newDescriptor];
-      })
-      .filter(([name, descriptor]) => 'get' in descriptor)
-  )
+  // Copy
+  descriptors = Object.assign({}, descriptors);
+  for (const [name, descriptor] of Object.entries(descriptors)) {
+    descriptor.offset = stride;
+    stride += descriptor.size;
+  }
 
   const length = Math.floor(buffer.byteLength / stride);
   return new Proxy(new Array(length), {
@@ -39,21 +36,18 @@ export function ArrayOfStructsView(buffer, descriptor) {
       const idx = parseInt(prop);
       const itemOffset = idx * stride;
       if (!target[idx]) {
-        target[idx] = Object.defineProperties({}, Object.fromEntries(
-          Object.entries(augmentedDescriptor)
-            .map(([name, descriptor]) => ([
-              name,
-              {
-                enumerable: true,
-                get() {
-                  return descriptor.get(dataView, itemOffset + descriptor.offset)
-                },
-                set(value) {
-                  return descriptor.set(dataView, itemOffset + descriptor.offset, value)
-                }
-              }
-            ]))
-        ))
+        target[idx] = {};
+        for (const [name, descriptor] of Object.entries(descriptors)) {
+          Object.defineProperty(target[idx], name, {
+            enumerable: true,
+            get() {
+              return descriptor.get(dataView, itemOffset + descriptor.offset)
+            },
+            set(value) {
+              return descriptor.set(dataView, itemOffset + descriptor.offset, value)
+            }
+          })
+        }
       }
       return target[idx];
     }

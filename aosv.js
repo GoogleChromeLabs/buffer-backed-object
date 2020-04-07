@@ -27,8 +27,12 @@ export function structSize(descriptors) {
   return stride;
 }
 
-export function ArrayOfStructsView(buffer, descriptors) {
-  const dataView = new DataView(buffer);
+export function ArrayOfStructsView(
+  buffer,
+  descriptors,
+  { byteOffset = 0, length = 0 } = {}
+) {
+  const dataView = new DataView(buffer, byteOffset);
   // Accumulate the size of one struct
   let stride = 0;
   // Copy
@@ -38,8 +42,9 @@ export function ArrayOfStructsView(buffer, descriptors) {
     descriptors[name] = Object.assign({}, descriptor, { offset: stride });
     stride += descriptor.size;
   }
-
-  const length = Math.floor(buffer.byteLength / stride);
+  if (!length) {
+    length = Math.floor((buffer.byteLength - byteOffset) / stride);
+  }
   return new Proxy(new Array(length), {
     has(target, propName) {
       // The underlying array is hole-y, but we want to pretend that it is not.

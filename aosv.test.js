@@ -65,6 +65,23 @@ describe("ArrayOfStructsView", function() {
     expect(aosv[1].texture).toBe(10);
   });
 
+  it("can have an offset", function() {
+    const descriptor = {
+      id: ArrayOfStructsView.Uint8(),
+      _: ArrayOfStructsView.reserved(1)
+    };
+    const buffer = new ArrayBuffer(structSize(descriptor) * 4 + 1);
+    const dataView = new DataView(buffer);
+    const aosv = new ArrayOfStructsView(buffer, descriptor, {
+      byteOffset: 1,
+      length: 2
+    });
+    expect(aosv.length).toBe(2);
+    aosv[0].id = 1;
+    aosv[1].id = 1;
+    expect(dataView.getUint8(1)).toBe(1);
+  });
+
   it("can return the buffer", function() {
     const buffer = new ArrayBuffer(22);
     const aosv = new ArrayOfStructsView(buffer, {
@@ -73,7 +90,7 @@ describe("ArrayOfStructsView", function() {
     expect(aosv.buffer).toBe(buffer);
   });
 
-  it("can decode to JSON", function() {
+  it("encodes to JSON", function() {
     const { buffer } = new Uint8Array([0, 0, 1, 0, 2, 0, 1]);
     const aosv = new ArrayOfStructsView(buffer, {
       id: ArrayOfStructsView.Uint8(),
@@ -99,7 +116,7 @@ describe("ArrayOfStructsView", function() {
     expect(dataView.getFloat64(11)).toBe(20);
   });
 
-  it("can use filter", function() {
+  it("handles filter()", function() {
     const descriptor = {
       id: ArrayOfStructsView.Uint8(),
       data: ArrayOfStructsView.Uint8(1)

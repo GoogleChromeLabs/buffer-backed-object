@@ -8,11 +8,13 @@ function betterIsNaN(s) {
 
 export function ArrayOfStructsView(buffer, descriptors) {
   const dataView = new DataView(buffer);
+  // Accumulate the size of one struct
   let stride = 0;
   // Copy
   descriptors = Object.assign({}, descriptors);
   for (const [name, descriptor] of Object.entries(descriptors)) {
-    descriptor.offset = stride;
+    // Copy second layer and add offset property
+    descriptors[name] = Object.assign({}, descriptor, {offset: stride})
     stride += descriptor.size;
   }
 
@@ -38,6 +40,9 @@ export function ArrayOfStructsView(buffer, descriptors) {
       if (!target[idx]) {
         target[idx] = {};
         for (const [name, descriptor] of Object.entries(descriptors)) {
+          if (!('get' in descriptor)) {
+            continue;
+          }
           Object.defineProperty(target[idx], name, {
             enumerable: true,
             get() {

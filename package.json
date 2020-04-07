@@ -1,0 +1,16 @@
+{
+  "name": "array-of-structs-view",
+  "version": "0.0.1",
+  "description": "",
+  "source": "aosv.js",
+  "module": "dist/aosv.js",
+  "main": "dist/aosv.umd.js",
+  "scripts": {
+    "build": "microbundle -f es,umd"
+  },
+  "author": "Surma <surma@surma.dev>",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "microbundle": "^0.11.0"
+  }
+}

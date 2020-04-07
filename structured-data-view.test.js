@@ -89,7 +89,7 @@ describe("ArrayOfStructuredDataViews", function() {
   it("handles nested AOSV", function() {
     const descriptors = {
       id: StructuredDataView.Uint8(),
-      vertices: StructuredDataView.ArrayOfStructuredDataViews(3, {
+      vertices: StructuredDataView.NestedArrayOfStructuredDataViews(3, {
         x: StructuredDataView.Float64(),
         y: StructuredDataView.Float64()
       })
@@ -116,7 +116,7 @@ describe("ArrayOfStructuredDataViews", function() {
   it("handles nested structures", function() {
     const descriptors = {
       id: StructuredDataView.Uint8(),
-      pos: StructuredDataView.StructuredDataView({
+      pos: StructuredDataView.NestedStructuredDataView({
         x: StructuredDataView.Float64(),
         y: StructuredDataView.Float64()
       })

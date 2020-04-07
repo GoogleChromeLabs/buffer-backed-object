@@ -158,7 +158,7 @@ StructuredDataView.ArrayBuffer = size => ({
     )
 });
 
-StructuredDataView.StructuredDataView = descriptors => {
+StructuredDataView.NestedStructuredDataView = descriptors => {
   const size = structSize(descriptors);
   return {
     size,
@@ -173,7 +173,7 @@ StructuredDataView.StructuredDataView = descriptors => {
   };
 };
 
-StructuredDataView.ArrayOfStructuredDataViews = (length, descriptors) => {
+StructuredDataView.NestedArrayOfStructuredDataViews = (length, descriptors) => {
   const size = structSize(descriptors);
   return {
     size: size * length,

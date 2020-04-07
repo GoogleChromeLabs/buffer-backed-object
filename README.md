@@ -8,7 +8,13 @@ npm i -S @surma/structured-data-view
 
 ## Why?
 
+### Web Workers
+
 When using [Web Workers], the performance of `postMessage()` (or the [structured clone algorithm][structured clone] to be exact) is often a concern. While [`postMessage()` is faster than most people give it credit for][is postmessage slow], it can be a bottle-neck, especially with bigger payloads. `ArrayBuffer` and their [views][arraybufferview] are incredibly quick to clone, or can even be [transferred][transferable]. However, getting data in and out of `ArrayBuffer`s can be quite cumbersome. `StructuredDataView` makes this easy by giving you a (seemingly) normal JavaScript object that reads and write values from the `ArrayBuffer` on demand.
+
+### WebGL
+
+[WebGL Buffers][webgl buffer] can store multiple attribute with different types per vertex using [`vertexAttribPointer()`][vertexattribpointer]. A vertex can have a 3D position, but also other additional data like a normal, a color or a texture ID. These buffers contain all the data for all the vertices in an interleaved format, which can make manipulating that data quite cumbersome. With `ArrayOfStructuredDataViews` you can manipulate the data of invidivual vertices very easily. Additionally, `ArrayOfStructuredDataViews` is lazy (see more below), allowing you to handle big numbers of vertices efficiently.
 
 ## Example
 
@@ -18,7 +24,7 @@ When using [Web Workers], the performance of `postMessage()` (or the [structured
 import {StructuredDataView} from "@surma/structured-data-view";
 
 const {buffer} = new ArrayBuffer(100);
-const view = new StructuredDataView({
+const view = new StructuredDataView(buffer, {
   id: StructuredDataView.Uint16({endianess: 'little'}),
   position: StructuredDataView.NestedStructuredDataView({
     x: StructuredDataView.Float32(),
@@ -43,7 +49,7 @@ console.log(JSON.stringify(view)); // {"id": 3, ...}
 import {ArrayOfStructuredDataViews, StructuredDataView} from "@surma/structured-data-view";
 
 const {buffer} = new ArrayBuffer(100);
-const view = new ArrayOfStructuredDataViews({
+const view = new ArrayOfStructuredDataViews(buffer, {
   id: StructuredDataView.Uint16({endianess: 'little'}),
   position: StructuredDataView.NestedStructuredDataView({
     x: StructuredDataView.Float32(),
@@ -128,3 +134,5 @@ License Apache-2.0
 [arraybufferview]: https://developer.mozilla.org/en-US/docs/Web/API/ArrayBufferView
 [transferable]: https://developer.mozilla.org/en-US/docs/Web/API/Transferable
 [bigint]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt
+[webgl buffer]: https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer
+[vertexattribpointer]: https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer

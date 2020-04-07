@@ -1,12 +1,14 @@
 # `StructuredDataView`
 
-`StructuredDataView` is an abstraction on top of [`DataView`][dataview]. It takes a schema definition to make using with [`ArrayBuffer`][arraybuffer]s more convenient.
-
-When using [Web Workers], the performance of `postMessage()` (or the [structured clone algorithm][structured clone] to be exact) is often a concern. While [`postMessage()` is faster than most people give it credit for][is postmessage slow], it can be a bottle-neck, especially with bigger payloads. `ArrayBuffer` and their [views][arraybufferview] are incredibly quick to clone, or can even be [transferred][transferable]. However, getting data in and out of `ArrayBuffer`s can be quite cumbersome. `StructuredDataView` makes this easy by giving you a (seemingly) normal JavaScript object that reads and write values from the `ArrayBuffer` on demand.
+**`StructuredDataView` gives you buffer-backed objects**. It takes a schema definition to make [`ArrayBuffer`][arraybuffer]s more convenient to use and utilizes [`DataView`][dataview] under the hood.
 
 ```
 npm i -S structured-array-view
 ```
+
+## Why?
+
+When using [Web Workers], the performance of `postMessage()` (or the [structured clone algorithm][structured clone] to be exact) is often a concern. While [`postMessage()` is faster than most people give it credit for][is postmessage slow], it can be a bottle-neck, especially with bigger payloads. `ArrayBuffer` and their [views][arraybufferview] are incredibly quick to clone, or can even be [transferred][transferable]. However, getting data in and out of `ArrayBuffer`s can be quite cumbersome. `StructuredDataView` makes this easy by giving you a (seemingly) normal JavaScript object that reads and write values from the `ArrayBuffer` on demand.
 
 ## Example
 

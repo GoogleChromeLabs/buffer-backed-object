@@ -82,6 +82,60 @@ describe("ArrayOfStructsView", function() {
     expect(dataView.getUint8(1)).toBe(1);
   });
 
+  it("handles nested AOSV", function() {
+    const descriptors = {
+      id: ArrayOfStructsView.Uint8(),
+      vertices: ArrayOfStructsView.ArrayOfStructsView(3, {
+        x: ArrayOfStructsView.Float64(),
+        y: ArrayOfStructsView.Float64()
+      })
+    };
+    const buffer = new ArrayBuffer(structSize(descriptors) * 3);
+    const aosv = new ArrayOfStructsView(buffer, descriptors);
+    expect(aosv.length).toBe(3);
+    aosv[2].id = 1;
+    aosv[2].vertices[0].x = 0;
+    aosv[2].vertices[0].y = 1;
+    aosv[2].vertices[1].x = 2;
+    aosv[2].vertices[1].y = 3;
+    aosv[2].vertices[2].x = 4;
+    aosv[2].vertices[2].y = 5;
+    expect(aosv.length).toBe(3);
+    expect(JSON.stringify(aosv[2])).toBe(
+      JSON.stringify({
+        id: 1,
+        vertices: [{ x: 0, y: 1 }, { x: 2, y: 3 }, { x: 4, y: 5 }]
+      })
+    );
+  });
+
+  it("handles nested structures", function() {
+    const descriptors = {
+      id: ArrayOfStructsView.Uint8(),
+      pos: ArrayOfStructsView.StructuredDataView({
+        x: ArrayOfStructsView.Float64(),
+        y: ArrayOfStructsView.Float64()
+      })
+    };
+    const buffer = new ArrayBuffer(structSize(descriptors) * 3);
+    const aosv = new ArrayOfStructsView(buffer, descriptors);
+    expect(aosv.length).toBe(3);
+    aosv[2].id = 1;
+    aosv[2].pos.x = 3;
+    aosv[2].pos.y = 2;
+    expect(aosv.length).toBe(3);
+    expect(JSON.stringify(aosv[2])).toBe(
+      JSON.stringify({ id: 1, pos: { x: 3, y: 2 } })
+    );
+    expect(JSON.stringify(aosv)).toBe(
+      JSON.stringify([
+        { id: 0, pos: { x: 0, y: 0 } },
+        { id: 0, pos: { x: 0, y: 0 } },
+        { id: 1, pos: { x: 3, y: 2 } }
+      ])
+    );
+  });
+
   it("can return the buffer", function() {
     const buffer = new ArrayBuffer(22);
     const aosv = new ArrayOfStructsView(buffer, {

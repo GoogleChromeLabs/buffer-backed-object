@@ -134,6 +134,52 @@ ArrayOfStructsView.Uint8 = () => ({
   set: (dataView, byteOffset, value) => dataView.setUint8(byteOffset, value)
 });
 
+ArrayOfStructsView.Int8 = () => ({
+  size: 1,
+  get: (dataView, byteOffset) => dataView.getInt8(byteOffset),
+  set: (dataView, byteOffset, value) => dataView.setInt8(byteOffset, value)
+});
+
+ArrayOfStructsView.ArrayBuffer = size => ({
+  size,
+  get: (dataView, byteOffset) =>
+    dataView.buffer.subarray(byteOffset, byteOffset + size),
+  set: (dataView, byteOffset, value) =>
+    new Uint8Array(dataView.buffer.subarray(byteOffset, byteOffset + size)).set(
+      new Uint8Array(value)
+    )
+});
+
+ArrayOfStructsView.StructuredDataView = descriptors => {
+  const size = structSize(descriptors);
+  return {
+    size,
+    get: (dataView, byteOffset) =>
+      new ArrayOfStructsView(dataView.buffer, descriptors, {
+        byteOffset,
+        length: 1
+      })[0],
+    set: (dataView, byteOffset, value) => {
+      throw Error("Can’t set an entire struct");
+    }
+  };
+};
+
+ArrayOfStructsView.ArrayOfStructsView = (length, descriptors) => {
+  const size = structSize(descriptors);
+  return {
+    size: size * length,
+    get: (dataView, byteOffset) =>
+      new ArrayOfStructsView(dataView.buffer, descriptors, {
+        byteOffset,
+        length
+      }),
+    set: (dataView, byteOffset, value) => {
+      throw Error("Can’t set an entire array");
+    }
+  };
+};
+
 ArrayOfStructsView.reserved = size => ({ size });
 
 export default ArrayOfStructsView;

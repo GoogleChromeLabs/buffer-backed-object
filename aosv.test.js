@@ -98,4 +98,29 @@ describe("ArrayOfStructsView", function() {
     expect(dataView.getFloat64(1)).toBe(10);
     expect(dataView.getFloat64(11)).toBe(20);
   });
+
+  it("can use filter", function() {
+    const descriptor = {
+      id: ArrayOfStructsView.Uint8(),
+      data: ArrayOfStructsView.Uint8(1)
+    };
+    const { buffer } = new Uint8Array([0, 10, 1, 11, 2, 12, 3, 13]);
+    const aosv = new ArrayOfStructsView(buffer, descriptor);
+    const even = aosv.filter(({ id }) => id % 2 == 0);
+    expect(even.length).toBe(2);
+    even[1].data = 99;
+    expect(aosv[2].data).toBe(99);
+  });
+
+  it("rejects new properties", function() {
+    const descriptor = {
+      id: ArrayOfStructsView.Uint8(),
+      data: ArrayOfStructsView.Uint8(1)
+    };
+    const { buffer } = new Uint8Array([0, 10, 1, 11, 2, 12, 3, 13]);
+    const aosv = new ArrayOfStructsView(buffer, descriptor);
+    expect(() => {
+      aosv[0].lol = 4;
+    }).toThrow();
+  });
 });

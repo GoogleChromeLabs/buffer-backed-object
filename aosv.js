@@ -41,22 +41,36 @@ export function ArrayOfStructsView(buffer, descriptors) {
 
   const length = Math.floor(buffer.byteLength / stride);
   return new Proxy(new Array(length), {
-    get(target, prop, proxy) {
-      switch (prop) {
-        case "buffer":
-          return buffer;
-        case "toJSON":
-          return JSON.stringify(Array.from({ length }, (_, i) => proxy[i]));
-        case "length":
-          return length;
+    has(target, propName) {
+      // The underlying array is hole-y, but we want to pretend that it is not.
+      // So we need to return `true` for all indices so that `map` et al. work
+      // as expected.
+      if (!betterIsNaN(propName)) {
+        return propName < length;
       }
-      // If it wasn’t handled by the switch-case above
-      // and is not a number, than it’s a prop we don’t support yet.
-      if (betterIsNaN(prop)) {
-        throw Error(`Accessing "${prop}" is unsupported for now lol`);
+      if (propName === "buffer") {
+        return true;
       }
-      const idx = parseInt(prop);
+      return propName in target;
+    },
+    get(target, propName, proxy) {
+      if (propName === "buffer") {
+        return buffer;
+      }
+      if (betterIsNaN(propName)) {
+        let prop = target[propName];
+        if (typeof prop === "function") {
+          prop = prop.bind(proxy);
+        }
+        return prop;
+      }
+      const idx = parseInt(propName);
       const itemOffset = idx * stride;
+      // Just like real arrays, we return `undefined`
+      // outside the boundaries.
+      if (idx >= target.length) {
+        return undefined;
+      }
       if (!target[idx]) {
         target[idx] = {};
         for (const [name, descriptor] of Object.entries(descriptors)) {
@@ -77,6 +91,7 @@ export function ArrayOfStructsView(buffer, descriptors) {
             }
           });
         }
+        Object.freeze(target[idx]);
       }
       return target[idx];
     }

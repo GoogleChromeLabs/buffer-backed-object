@@ -95,6 +95,25 @@ Like `StructuredDataView`, but returns an _array_ of `StructuredDataView`s. If `
 
 Returns the number of bytes used by the schema outlined by `descriptors`.
 
+## Defining your own descriptor types
+
+All the descriptor functions return an object with the following structure:
+
+```js
+{
+  size: 4, // Size required by the type
+  get(dataView, byteOffset) {
+    // Decode the value at byteOffset using
+    // `dataView` or `dataView.buffer` and
+    // return it.
+  },
+  set(dataView, byteOffset, value) {
+    // Store `value` at `byteOffset` using
+    // `dataView` or `dataView.buffer`.
+  }
+}
+```
+
 ---
 
 License Apache-2.0

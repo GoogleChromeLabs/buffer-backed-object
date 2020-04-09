@@ -27,7 +27,7 @@ export function structSize(descriptors) {
   return stride;
 }
 
-export function ArrayOfStructuredDataViews(
+export function ArrayOfBufferBackedObjects(
   buffer,
   descriptors,
   { byteOffset = 0, length = 0 } = {}
@@ -103,12 +103,12 @@ export function ArrayOfStructuredDataViews(
   });
 }
 
-export function StructuredDataView(
+export function BufferBackedObject(
   buffer,
   descriptors,
   { byteOffset = 0 } = {}
 ) {
-  return ArrayOfStructuredDataViews(buffer, descriptors, { byteOffset })[0];
+  return ArrayOfBufferBackedObjects(buffer, descriptors, { byteOffset })[0];
 }
 
 [
@@ -121,7 +121,7 @@ export function StructuredDataView(
   "BigInt64",
   "BigUint64",
 ].forEach((name) => {
-  StructuredDataView[name] = ({ endianess = "big" } = {}) => {
+  BufferBackedObject[name] = ({ endianess = "big" } = {}) => {
     if (endianess !== "big" && endianess !== "little") {
       throw Error("Endianess needs to be either 'big' or 'little'");
     }
@@ -136,19 +136,19 @@ export function StructuredDataView(
   };
 });
 
-StructuredDataView.Uint8 = () => ({
+BufferBackedObject.Uint8 = () => ({
   size: 1,
   get: (dataView, byteOffset) => dataView.getUint8(byteOffset),
   set: (dataView, byteOffset, value) => dataView.setUint8(byteOffset, value),
 });
 
-StructuredDataView.Int8 = () => ({
+BufferBackedObject.Int8 = () => ({
   size: 1,
   get: (dataView, byteOffset) => dataView.getInt8(byteOffset),
   set: (dataView, byteOffset, value) => dataView.setInt8(byteOffset, value),
 });
 
-StructuredDataView.ArrayBuffer = (size) => ({
+BufferBackedObject.ArrayBuffer = (size) => ({
   size,
   get: (dataView, byteOffset) =>
     dataView.buffer.subarray(byteOffset, byteOffset + size),
@@ -158,12 +158,12 @@ StructuredDataView.ArrayBuffer = (size) => ({
     ),
 });
 
-StructuredDataView.NestedStructuredDataView = (descriptors) => {
+BufferBackedObject.NestedBufferBackedObject = (descriptors) => {
   const size = structSize(descriptors);
   return {
     size,
     get: (dataView, byteOffset) =>
-      new ArrayOfStructuredDataViews(dataView.buffer, descriptors, {
+      new ArrayOfBufferBackedObjects(dataView.buffer, descriptors, {
         byteOffset,
         length: 1,
       })[0],
@@ -173,12 +173,12 @@ StructuredDataView.NestedStructuredDataView = (descriptors) => {
   };
 };
 
-StructuredDataView.NestedArrayOfStructuredDataViews = (length, descriptors) => {
-  const size = structSize(descriptors);
+BufferBackedObject.NestedArrayOfBufferBackedObjects = (length, descriptors) => {
+  const size = structSize(descriptors) * length;
   return {
-    size: size * length,
+    size,
     get: (dataView, byteOffset) =>
-      new ArrayOfStructuredDataViews(dataView.buffer, descriptors, {
+      new ArrayOfBufferBackedObjects(dataView.buffer, descriptors, {
         byteOffset,
         length,
       }),
@@ -188,7 +188,7 @@ StructuredDataView.NestedArrayOfStructuredDataViews = (length, descriptors) => {
   };
 };
 
-StructuredDataView.UTF8String = (maxBytes) => {
+BufferBackedObject.UTF8String = (maxBytes) => {
   return {
     size: maxBytes,
     get: (dataView, byteOffset) =>
@@ -204,6 +204,6 @@ StructuredDataView.UTF8String = (maxBytes) => {
   };
 };
 
-StructuredDataView.reserved = (size) => ({ size });
+BufferBackedObject.reserved = (size) => ({ size });
 
-export default StructuredDataView;
+export default BufferBackedObject;

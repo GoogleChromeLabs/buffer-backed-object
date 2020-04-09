@@ -1,12 +1,12 @@
 {
-  "name": "@surma/structured-data-view",
+  "name": "buffer-backed-objects",
   "version": "0.0.2",
   "description": "",
-  "source": "aosv.js",
-  "module": "dist/structured-data-view.modern.js",
-  "main": "dist/structured-data-view.umd.js",
+  "source": "buffer-backed-objects.js",
+  "module": "dist/buffer-backed-objects.modern.js",
+  "main": "dist/buffer-backed-objects.umd.js",
   "scripts": {
-    "build": "microbundle -f modern structured-data-view.js && microbundle -f umd structured-data-view.js",
+    "build": "microbundle -f modern && microbundle -f umd",
     "test": "karmatic"
   },
   "author": "Surma <surma@surma.dev>",

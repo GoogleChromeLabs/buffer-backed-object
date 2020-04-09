@@ -10,65 +10,76 @@ npm i -S buffer-backed-object
 
 ### Web Workers
 
-When using [Web Workers], the performance of `postMessage()` (or the [structured clone algorithm][structured clone] to be exact) is often a concern. While [`postMessage()` is faster than most people give it credit for][is postmessage slow], it can be a bottle-neck, especially with bigger payloads. `ArrayBuffer` and their [views][arraybufferview] are incredibly quick to clone, or can even be [transferred][transferable]. However, getting data in and out of `ArrayBuffer`s can be quite cumbersome. `BufferBackedObject` makes this easy by giving you a (seemingly) normal JavaScript object that reads and write values from the `ArrayBuffer` on demand.
+When using [Web Workers], the performance of `postMessage()` (or the [structured clone algorithm][structured clone] to be exact) is often a concern. While [`postMessage()` is a lot faster than most people give it credit for][is postmessage slow], it can still occasionally be a bottle-neck, especially with bigger payloads. [`ArrayBuffer`][arraybuffer] and their [views][arraybufferview] are incredibly quick to clone (or can even be [transferred][transferable]), but getting data in and out of `ArrayBuffer`s can be cumbersome. `BufferBackedObject` makes this easy by giving you a (seemingly) normal JavaScript object that reads and write values from the `ArrayBuffer` on demand. This means that the serialization & deserialization costs are deferred to the point of access rather than paid upfront, as it is the case with `postMessage()`.
 
 ### WebGL
 
-[WebGL Buffers][webgl buffer] can store multiple attribute with different types per vertex using [`vertexAttribPointer()`][vertexattribpointer]. A vertex can have a 3D position, but also other additional data like a normal, a color or a texture ID. These buffers contain all the data for all the vertices in an interleaved format, which can make manipulating that data quite cumbersome. With `ArrayOfBufferBackedObjects` you can manipulate the data of invidivual vertices very easily. Additionally, `ArrayOfBufferBackedObjects` is lazy (see more below), allowing you to handle big numbers of vertices efficiently.
+[WebGL Buffers][webgl buffer] can store multiple attributes per vertex using [`vertexAttribPointer()`][vertexattribpointer]. These attributes can be a 3D position, but also other additional data like a normal vector, a color or a texture ID. The underlying buffer contains all the attributes for all the vertices in an interleaved format, which can make manipulating that data quite hard. With `ArrayOfBufferBackedObjects` you can manipulate each vertex individually. Additionally, `ArrayOfBufferBackedObjects` is populated lazily (see more below), allowing you to handle big arrays of vertices more efficiently.
 
 ## Example
 
-`BufferBackedObject` interprets the given `ArrayBuffer` as an object with the given schema:
-
 ```js
-import {BufferBackedObject} from "buffer-backed-object";
+import { BufferBackedObject } from "buffer-backed-object";
 
-const {buffer} = new ArrayBuffer(100);
+const { buffer } = new ArrayBuffer(100);
 const view = new BufferBackedObject(buffer, {
-  id: BufferBackedObject.Uint16({endianess: 'little'}),
+  id: BufferBackedObject.Uint16({ endianess: "little" }),
   position: BufferBackedObject.NestedBufferBackedObject({
     x: BufferBackedObject.Float32(),
     y: BufferBackedObject.Float32(),
-    z: BufferBackedObject.Float32()
+    z: BufferBackedObject.Float32(),
   }),
   normal: BufferBackedObject.NestedBufferBackedObject({
     x: BufferBackedObject.Float32(),
     y: BufferBackedObject.Float32(),
-    z: BufferBackedObject.Float32()
-  })
-  textureId: ArrayOfStructsView.Uint8(),
+    z: BufferBackedObject.Float32(),
+  }),
+  textureId: BufferBackedObject.Uint8(),
 });
 
 view.id = 3;
-console.log(JSON.stringify(view)); // {"id": 3, ...}
+console.log(new Uint8Array(buffer));
+// logs: Uint8Array(100) [3, 0, ...]
+console.log(JSON.stringify(view));
+// logs: {"id": 3, "position": {"x": 0, ...}, ...}
 ```
 
 `ArrayOfBufferBackedObjects` interprets the given `ArrayBuffer` as an _array_ of objects with the given schema:
 
 ```js
-import {ArrayOfBufferBackedObjects, BufferBackedObject} from "buffer-backed-object";
+import {
+  ArrayOfBufferBackedObjects,
+  BufferBackedObject,
+} from "buffer-backed-object";
 
-const {buffer} = new ArrayBuffer(100);
+const { buffer } = new ArrayBuffer(100);
 const view = new ArrayOfBufferBackedObjects(buffer, {
-  id: BufferBackedObject.Uint16({endianess: 'little'}),
+  id: BufferBackedObject.Uint16({ endianess: "little" }),
   position: BufferBackedObject.NestedBufferBackedObject({
     x: BufferBackedObject.Float32(),
     y: BufferBackedObject.Float32(),
-    z: BufferBackedObject.Float32()
+    z: BufferBackedObject.Float32(),
   }),
   normal: BufferBackedObject.NestedBufferBackedObject({
     x: BufferBackedObject.Float32(),
     y: BufferBackedObject.Float32(),
-    z: BufferBackedObject.Float32()
-  })
-  textureId: ArrayOfStructsView.Uint8(),
+    z: BufferBackedObject.Float32(),
+  }),
+  textureId: BufferBackedObject.Uint8(),
 });
 
 // The struct takes up a total of 27 bytes, so
-// 3 structs fit into a 100 byte `ArrayBuffer`.
-console.log(view.length) // 3
-view.id = 3;
-JSON.stringify(view); // [{"id": 0, ...}, {"id": 0, ...}, {"id": 3, ...}]
+// 3 structs can fit into a 100 byte `ArrayBuffer`.
+console.log(view.length);
+// logs: 3
+
+view[0].id = 1000;
+view[1].id = 1001;
+view[2].id = 1002;
+console.log(new Uint8Array(buffer));
+// logs: Uint8Array(100) [232, 3, ...]
+console.log(JSON.stringify(view));
+// logs: [{"id": 1000, ...}, {"id": 1001}, ...]
 ```
 
 ## API
@@ -77,9 +88,11 @@ The module has the following exports:
 
 ### `new BufferBackedObject(buffer, descriptors, {byteOffset = 0})`
 
-Returns an object that works on `buffer` at the given `byteOffset`. The properties in the `descriptors` object must be in the same order as they are laid out in the buffer. The returned object has getters and setters for each of these properties. The following descriptor types are provided:
+The key/value pairs in the `descriptors` object must be declared in the same order as they are laid out in the buffer. The returned object has getters and setters for each of `descriptors` properties and de/serializes them `buffer`, starting at the given `byteOffset`.
 
-- `BufferBackedObject.reserved(numBytes)`: Unused bytes. This field will now show up in the object.
+The following descriptor types are available as built-ins:
+
+- `BufferBackedObject.reserved(numBytes)`: A number of unused bytes. This field will now show up in the object.
 - `BufferBackedObject.Int8()`: An 8-bit signed integer
 - `BufferBackedObject.Uint8()`: An 8-bit unsigned integer
 - `BufferBackedObject.Int16({endianess = 'big'})`: An 16-bit signed integer
@@ -97,11 +110,11 @@ Returns an object that works on `buffer` at the given `byteOffset`. The properti
 
 ### `new ArrayOfBufferBackedObjects(buffer, descriptors, {byteOffset = 0, length = 0})`
 
-Like `BufferBackedObject`, but returns an _array_ of `BufferBackedObject`s. If `length` is 0, as much of the buffer is used as possible. The array is populated lazily under the hood so the `BufferBackedObject` objects will only be created when accessed.
+Like `BufferBackedObject`, but returns an _array_ of `BufferBackedObject`s. If `length` is 0, as much of the buffer is used as possible. The array is populated lazily under the hood for performance purposes. That is, the individual `BufferBackedObject`s will only be created when their index is accessed.
 
 ### `structSize(descriptors)`
 
-Returns the number of bytes used by the schema outlined by `descriptors`.
+Returns the number of bytes required to store a value with the schema outlined by `descriptors`.
 
 ## Defining your own descriptor types
 

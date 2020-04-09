@@ -15,7 +15,7 @@ import {
   ArrayOfBufferBackedObjects,
   BufferBackedObject,
   structSize,
-} from "./buffer-backed-objects.js";
+} from "./buffer-backed-object.js";
 
 describe("structSize", function () {
   it("calculates the size of a struct correctly", function () {

@@ -1,10 +1,10 @@
 {
-  "name": "buffer-backed-objects",
+  "name": "buffer-backed-object",
   "version": "0.0.2",
   "description": "",
-  "source": "buffer-backed-objects.js",
-  "module": "dist/buffer-backed-objects.modern.js",
-  "main": "dist/buffer-backed-objects.umd.js",
+  "source": "buffer-backed-object.js",
+  "module": "dist/buffer-backed-object.modern.js",
+  "main": "dist/buffer-backed-object.umd.js",
   "scripts": {
     "build": "microbundle -f modern && microbundle -f umd",
     "test": "karmatic"

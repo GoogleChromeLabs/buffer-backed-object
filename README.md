@@ -1,9 +1,9 @@
-# `BufferBackedObjects`
+# `BufferBackedObject`
 
-**`BufferBackedObjects` creates objects that are backed by an `ArrayBuffer`**. It takes a schema definition and de/serializes data on-demand using [`DataView`][dataview] under the hood. The goal is to make [`ArrayBuffer`][arraybuffer]s more convenient to use.
+**`BufferBackedObject` creates objects that are backed by an `ArrayBuffer`**. It takes a schema definition and de/serializes data on-demand using [`DataView`][dataview] under the hood. The goal is to make [`ArrayBuffer`][arraybuffer]s more convenient to use.
 
 ```
-npm i -S buffer-backed-objects
+npm i -S buffer-backed-object
 ```
 
 ## Why?
@@ -21,7 +21,7 @@ When using [Web Workers], the performance of `postMessage()` (or the [structured
 `BufferBackedObject` interprets the given `ArrayBuffer` as an object with the given schema:
 
 ```js
-import {BufferBackedObject} from "buffer-backed-objects";
+import {BufferBackedObject} from "buffer-backed-object";
 
 const {buffer} = new ArrayBuffer(100);
 const view = new BufferBackedObject(buffer, {
@@ -46,7 +46,7 @@ console.log(JSON.stringify(view)); // {"id": 3, ...}
 `ArrayOfBufferBackedObjects` interprets the given `ArrayBuffer` as an _array_ of objects with the given schema:
 
 ```js
-import {ArrayOfBufferBackedObjects, BufferBackedObject} from "buffer-backed-objects";
+import {ArrayOfBufferBackedObjects, BufferBackedObject} from "buffer-backed-object";
 
 const {buffer} = new ArrayBuffer(100);
 const view = new ArrayOfBufferBackedObjects(buffer, {

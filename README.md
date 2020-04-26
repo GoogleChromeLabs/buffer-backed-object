@@ -21,7 +21,7 @@ When using [Web Workers], the performance of `postMessage()` (or the [structured
 ```js
 import { BufferBackedObject } from "buffer-backed-object";
 
-const { buffer } = new ArrayBuffer(100);
+const buffer = new ArrayBuffer(100);
 const view = new BufferBackedObject(buffer, {
   id: BufferBackedObject.Uint16({ endianess: "little" }),
   position: BufferBackedObject.NestedBufferBackedObject({
@@ -52,7 +52,7 @@ import {
   BufferBackedObject,
 } from "buffer-backed-object";
 
-const { buffer } = new ArrayBuffer(100);
+const buffer = new ArrayBuffer(100);
 const view = new ArrayOfBufferBackedObjects(buffer, {
   id: BufferBackedObject.Uint16({ endianess: "little" }),
   position: BufferBackedObject.NestedBufferBackedObject({

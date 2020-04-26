@@ -11,6 +11,16 @@
  * limitations under the License.
  */
 
+// `globalThis` polyfill
+(function () {
+  if (typeof globalThis === "object") return;
+  Object.prototype.__defineGetter__("__magic__", function () {
+    return this;
+  });
+  __magic__.globalThis = __magic__; // lolwat
+  delete Object.prototype.__magic__;
+})();
+
 // Like `isNaN` but returns `true` for symbols.
 function betterIsNaN(s) {
   if (typeof s === "symbol") {
@@ -127,7 +137,7 @@ export function BufferBackedObject(
     }
     const littleEndian = endianess === "little";
     return {
-      size: self[`${name}Array`].BYTES_PER_ELEMENT,
+      size: globalThis[`${name}Array`].BYTES_PER_ELEMENT,
       get: (dataView, byteOffset) =>
         dataView[`get${name}`](byteOffset, littleEndian),
       set: (dataView, byteOffset, value) =>

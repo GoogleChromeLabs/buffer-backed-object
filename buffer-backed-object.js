@@ -131,11 +131,11 @@ export function BufferBackedObject(
   "BigInt64",
   "BigUint64",
 ].forEach((name) => {
-  BufferBackedObject[name] = ({ endianess = "big" } = {}) => {
-    if (endianess !== "big" && endianess !== "little") {
-      throw Error("Endianess needs to be either 'big' or 'little'");
+  BufferBackedObject[name] = ({ endianess: endianness = "big" } = {}) => {
+    if (endianness !== "big" && endianness !== "little") {
+      throw Error("Endianness needs to be either 'big' or 'little'");
     }
-    const littleEndian = endianess === "little";
+    const littleEndian = endianness === "little";
     return {
       size: globalThis[`${name}Array`].BYTES_PER_ELEMENT,
       get: (dataView, byteOffset) =>

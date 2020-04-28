@@ -3,7 +3,7 @@ import {assert, IsExact} from "conditional-type-checks";
 import {BufferBackedObject, ArrayOfBufferBackedObjects} from ".";
 
 const view = new BufferBackedObject(null as any, {
-  id: BufferBackedObject.Uint16({ endianess: "little" }),
+  id: BufferBackedObject.Uint16({ endianness: "little" }),
   name: BufferBackedObject.UTF8String(32),
   data: BufferBackedObject.ArrayBuffer(100),
   position: BufferBackedObject.NestedBufferBackedObject({
@@ -19,7 +19,7 @@ assert<IsExact<typeof view.data, ArrayBuffer>>(true);
 assert<IsExact<typeof view.position.x, number>>(true);
 
 const descriptors = {
-  id: BufferBackedObject.Uint16({ endianess: "little" }),
+  id: BufferBackedObject.Uint16({ endianness: "little" }),
   name: BufferBackedObject.UTF8String(32),
 };
 const view2 = new ArrayOfBufferBackedObjects(null as any, descriptors);

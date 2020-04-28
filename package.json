@@ -5,17 +5,24 @@
   "source": "buffer-backed-object.js",
   "module": "dist/buffer-backed-object.modern.js",
   "main": "dist/buffer-backed-object.umd.js",
+  "types": "dist/buffer-backed-object.d.ts",
   "scripts": {
-    "build": "microbundle -f modern && microbundle -f umd",
-    "test": "karmatic"
+    "build": "run-p build:*",
+    "build:bundle": "microbundle -f modern && microbundle -f umd",
+    "build:types": "cp buffer-backed-object.d.ts dist/",
+    "test": "run-p test:*",
+    "test:unit": "karmatic",
+    "test:types": "tsc --noEmit buffer-backed-object.type-test.ts"
   },
   "author": "Surma <surma@surma.dev>",
   "license": "Apache-2.0",
   "devDependencies": {
+    "conditional-type-checks": "^1.0.5",
     "husky": "^4.2.3",
     "karmatic": "^1.4.0",
     "lint-staged": "^10.1.2",
     "microbundle": "^0.12.0-next.8",
+    "npm-run-all": "^4.1.5",
     "prettier": "^2.0.4",
     "webpack": "^4.42.1"
   },

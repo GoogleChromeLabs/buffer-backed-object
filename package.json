@@ -1,6 +1,6 @@
 {
   "name": "buffer-backed-object",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "",
   "source": "buffer-backed-object.js",
   "module": "dist/buffer-backed-object.modern.js",

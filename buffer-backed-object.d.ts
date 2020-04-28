@@ -32,7 +32,7 @@ export interface BufferBackedObjectOptions {
 }
 
 type EndianOption = {
-  endianess?: "big" | "little";
+  endianness?: "big" | "little";
 };
 
 export const BufferBackedObject: {

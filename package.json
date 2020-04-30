@@ -2,6 +2,8 @@
   "name": "buffer-backed-object",
   "version": "0.2.1",
   "description": "",
+  "repository": "github:GoogleChromeLabs/buffer-backed-object",
+  "homepage": "https://github.com/GoogleChromeLabs/buffer-backed-object#readme",
   "source": "buffer-backed-object.js",
   "module": "dist/buffer-backed-object.modern.js",
   "main": "dist/buffer-backed-object.umd.js",

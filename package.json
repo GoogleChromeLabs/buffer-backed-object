@@ -1,6 +1,6 @@
 {
   "name": "buffer-backed-object",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "",
   "repository": "github:GoogleChromeLabs/buffer-backed-object",
   "homepage": "https://github.com/GoogleChromeLabs/buffer-backed-object#readme",

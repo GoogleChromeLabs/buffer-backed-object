@@ -219,6 +219,104 @@ describe("ArrayOfBufferBackedObjects", function () {
     expect(name1).toBe("Surma");
     expect(name2).toBe("Jason");
   });
+
+  it("can be sorted", function () {
+    const descriptors = {
+      firstKey: BufferBackedObject.UTF8String(80),
+      middleKey: BufferBackedObject.ArrayBuffer(10),
+    };
+
+    const descriptorSize = structSize(descriptors);
+
+    let randomNames = [
+      "bill",
+      "mike",
+      "dave",
+      "kat",
+      "brian",
+      "adam",
+      "sammy",
+      "martin",
+      "yanaris",
+    ];
+
+    const buffer = new ArrayBuffer(descriptorSize * randomNames.length);
+    const boar = new ArrayOfBufferBackedObjects(buffer, descriptors);
+
+    // this may be unnecessary for testing
+    let randomNumberArrays = [
+      [61, 129, 35, 3, 65, 151, 190, 139, 89, 212],
+      [43, 196, 83, 213, 118, 216, 142, 132, 220, 85],
+      [223, 245, 232, 30, 114, 42, 254, 129, 112, 59],
+      [159, 73, 73, 38, 199, 212, 60, 100, 181, 248],
+      [22, 197, 38, 37, 46, 139, 77, 202, 181, 183], // dupe
+      [178, 69, 33, 61, 59, 53, 116, 117, 66, 81],
+      [232, 97, 56, 20, 140, 122, 162, 88, 242, 58],
+      [24, 147, 73, 201, 205, 253, 200, 191, 99, 183],
+      [22, 197, 38, 37, 46, 139, 77, 202, 181, 183], // dupe
+      [190, 154, 53, 52, 94, 109, 131, 101, 43, 172],
+      [168, 220, 117, 172, 64, 219, 129, 80, 207, 43],
+    ];
+
+    // fill in the BBOs
+    for (let i = 0; i < randomNames.length; ++i) {
+      // fill the strings
+      const bbo = boar[i];
+      bbo.firstKey = randomNames[i];
+
+      // fill the arraybuffers
+      // let dataView = new DataView(bbo.middleKey);
+      // for(let j=0;j<10;++j){
+      //   dataView.setUint8(j, randomNumberArrays[i][j]);
+      // }
+    }
+
+    // our compare function
+    function compareFirst(itemA, itemB) {
+      if (itemA.firstKey < itemB.firstKey) {
+        return -1;
+      }
+      if (itemA.firstKey > itemB.firstKey) {
+        return 1;
+      }
+      return 0;
+    }
+
+    // sort it and get the list of names
+    boar.sort(compareFirst);
+    let sortedNames = boar.map((bbo) => {
+      console.log("mapping name:", bbo.firstKey);
+      return bbo.firstKey;
+    });
+    console.log("sortedNames", sortedNames);
+
+    // the expected order of the names
+    let firstKeyOrderedNames = [
+      "adam",
+      "bill",
+      "brian",
+      "dave",
+      "kat",
+      "martin",
+      "mike",
+      "sammy",
+      "yanaris",
+    ];
+
+    // check that the boar is sorted via the normal 'get' routine
+    for (let i = 0; i < sortedNames; ++i) {
+      expect(sortedNames[i]).toBe(firstKeyOrderedNames[i]);
+    }
+
+    // check that the boar is sorted via pulling directly from the buffer.
+    for (let i = 0; i < boar.length; ++i) {
+      let nameInBuffer = new TextDecoder()
+        .decode(new Uint8Array(boar.buffer, i * 100, 80))
+        .replace(/\u0000+$/, "");
+      console.log("name in buffer", nameInBuffer);
+      expect(nameInBuffer).toBe(firstKeyOrderedNames[i]);
+    }
+  });
 });
 
 describe("StructuredDataView", function () {

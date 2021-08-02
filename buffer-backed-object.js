@@ -158,16 +158,6 @@ BufferBackedObject.Int8 = () => ({
   set: (dataView, byteOffset, value) => dataView.setInt8(byteOffset, value),
 });
 
-BufferBackedObject.ArrayBuffer = (size) => ({
-  size,
-  get: (dataView, byteOffset) =>
-    dataView.buffer.subarray(byteOffset, byteOffset + size),
-  set: (dataView, byteOffset, value) =>
-    new Uint8Array(dataView.buffer.subarray(byteOffset, byteOffset + size)).set(
-      new Uint8Array(value)
-    ),
-});
-
 BufferBackedObject.NestedBufferBackedObject = (descriptors) => {
   const size = structSize(descriptors);
   return {

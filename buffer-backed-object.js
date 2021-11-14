@@ -131,7 +131,7 @@ export function BufferBackedObject(
   "BigInt64",
   "BigUint64",
 ].forEach((name) => {
-  BufferBackedObject[name] = ({ endianess: endianness = "big" } = {}) => {
+  BufferBackedObject[name] = ({ endianness: endianness = "big" } = {}) => {
     if (endianness !== "big" && endianness !== "little") {
       throw Error("Endianness needs to be either 'big' or 'little'");
     }

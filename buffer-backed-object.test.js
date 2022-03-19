@@ -44,8 +44,8 @@ describe("ArrayOfBufferBackedObjects", function () {
   it("decodes items correctly", function () {
     const descriptor = {
       id: BufferBackedObject.Uint8(),
-      x: BufferBackedObject.Float64({ endianess: "big" }),
-      y: BufferBackedObject.Float64({ endianess: "little" }),
+      x: BufferBackedObject.Float64({ endianness: "big" }),
+      y: BufferBackedObject.Float64({ endianness: "little" }),
       texture: BufferBackedObject.Int32(),
       _: BufferBackedObject.reserved(1),
     };
@@ -58,8 +58,8 @@ describe("ArrayOfBufferBackedObjects", function () {
     dataView.setFloat64(0 + 9, 30, true);
     dataView.setFloat64(22 + 1, 40, false);
     dataView.setFloat64(22 + 9, 50, true);
-    dataView.setInt32(0 + 17, 9);
-    dataView.setInt32(22 + 17, 10);
+    dataView.setInt32(0 + 17, 9, true);
+    dataView.setInt32(22 + 17, 10, true);
     const aosv = new ArrayOfBufferBackedObjects(buffer, descriptor);
     expect(aosv[0].id).toBe(1);
     expect(aosv[1].id).toBe(2);
@@ -176,8 +176,8 @@ describe("ArrayOfBufferBackedObjects", function () {
     const aosv = new ArrayOfBufferBackedObjects(buffer, descriptor);
     aosv[0].x = 10;
     aosv[1].x = 20;
-    expect(dataView.getFloat64(1)).toBe(10);
-    expect(dataView.getFloat64(11)).toBe(20);
+    expect(dataView.getFloat64(1, true)).toBe(10);
+    expect(dataView.getFloat64(11, true)).toBe(20);
   });
 
   it("handles filter()", function () {
@@ -225,8 +225,8 @@ describe("StructuredDataView", function () {
   it("decodes items correctly", function () {
     const descriptor = {
       id: BufferBackedObject.Uint8(),
-      x: BufferBackedObject.Float64({ endianess: "big" }),
-      y: BufferBackedObject.Float64({ endianess: "little" }),
+      x: BufferBackedObject.Float64({ endianness: "big" }),
+      y: BufferBackedObject.Float64({ endianness: "little" }),
       texture: BufferBackedObject.Int32(),
       _: BufferBackedObject.reserved(1),
     };
@@ -236,7 +236,7 @@ describe("StructuredDataView", function () {
     dataView.setUint8(0 + 0, 1);
     dataView.setFloat64(0 + 1, 20, false);
     dataView.setFloat64(0 + 9, 30, true);
-    dataView.setInt32(0 + 17, 9);
+    dataView.setInt32(0 + 17, 9, true);
     const sdv = new BufferBackedObject(buffer, descriptor);
     expect(sdv.id).toBe(1);
     expect(sdv.x).toBe(20);

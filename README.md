@@ -23,7 +23,7 @@ import { BufferBackedObject } from "buffer-backed-object";
 
 const buffer = new ArrayBuffer(100);
 const view = new BufferBackedObject(buffer, {
-  id: BufferBackedObject.Uint16({ endianness: "little" }),
+  id: BufferBackedObject.Uint16({ endianness: "big" }),
   position: BufferBackedObject.NestedBufferBackedObject({
     x: BufferBackedObject.Float32(),
     y: BufferBackedObject.Float32(),
@@ -54,7 +54,7 @@ import {
 
 const buffer = new ArrayBuffer(100);
 const view = new ArrayOfBufferBackedObjects(buffer, {
-  id: BufferBackedObject.Uint16({ endianness: "little" }),
+  id: BufferBackedObject.Uint16({ endianness: "big" }),
   position: BufferBackedObject.NestedBufferBackedObject({
     x: BufferBackedObject.Float32(),
     y: BufferBackedObject.Float32(),
@@ -95,14 +95,14 @@ The following descriptor types are available as built-ins:
 - `BufferBackedObject.reserved(numBytes)`: A number of unused bytes. This field will now show up in the object.
 - `BufferBackedObject.Int8()`: An 8-bit signed integer
 - `BufferBackedObject.Uint8()`: An 8-bit unsigned integer
-- `BufferBackedObject.Int16({endianness = 'big'})`: An 16-bit signed integer
-- `BufferBackedObject.Uint16({endianness = 'big'})`: An 16-bit unsigned integer
-- `BufferBackedObject.Int32({endianness = 'big'})`: An 32-bit signed integer
-- `BufferBackedObject.Uint32({endianness = 'big'})`: An 32-bit unsigned integer
-- `BufferBackedObject.BigInt64({endianness = 'big'})`: An 64-bit signed [`BigInt`][bigint]
-- `BufferBackedObject.BigUint64({endianness = 'big'})`: An 64-bit unsigned [`BigInt`][bigint]
-- `BufferBackedObject.Float32({endianness = 'big'})`: An 32-bit IEEE754 float
-- `BufferBackedObject.Float64({endianness = 'big'})`: An 64-bit IEEE754 float (“double”)
+- `BufferBackedObject.Int16({endianness = 'little'})`: An 16-bit signed integer
+- `BufferBackedObject.Uint16({endianness = 'little'})`: An 16-bit unsigned integer
+- `BufferBackedObject.Int32({endianness = 'little'})`: An 32-bit signed integer
+- `BufferBackedObject.Uint32({endianness = 'little'})`: An 32-bit unsigned integer
+- `BufferBackedObject.BigInt64({endianness = 'little'})`: An 64-bit signed [`BigInt`][bigint]
+- `BufferBackedObject.BigUint64({endianness = 'little'})`: An 64-bit unsigned [`BigInt`][bigint]
+- `BufferBackedObject.Float32({endianness = 'little'})`: An 32-bit IEEE754 float
+- `BufferBackedObject.Float64({endianness = 'little'})`: An 64-bit IEEE754 float (“double”)
 - `BufferBackedObject.UTF8String(maxBytes)`: A UTF-8 encoded string with the given maximum number of bytes. Trailing NULL bytes will be trimmed after decoding.
 - `BufferBackedObject.ArrayBuffer(size)`: An `ArrayBuffer` of the given size
 - `BufferBackedObject.NestedBufferBackedObject(descriptors)`: A nested `BufferBackedObject` with the given descriptors

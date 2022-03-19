@@ -9,7 +9,7 @@
   "main": "dist/buffer-backed-object.umd.js",
   "types": "dist/buffer-backed-object.d.ts",
   "scripts": {
-    "build": "run-p build:*",
+    "build": "mkdir -p dist && run-p build:*",
     "build:bundle": "microbundle -f modern && microbundle -f umd",
     "build:types": "cp buffer-backed-object.d.ts dist/",
     "test": "run-p test:*",

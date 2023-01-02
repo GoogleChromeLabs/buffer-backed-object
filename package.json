@@ -21,12 +21,12 @@
   "devDependencies": {
     "conditional-type-checks": "^1.0.5",
     "husky": "^4.2.3",
-    "karmatic": "^1.4.0",
+    "karmatic": "^3.0.0",
     "lint-staged": "^10.1.2",
-    "microbundle": "^0.12.0-next.8",
+    "microbundle": "^0.15.1",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.0.4",
-    "webpack": "^4.42.1"
+    "webpack": "^5.75.0"
   },
   "husky": {
     "hooks": {

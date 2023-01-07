@@ -179,7 +179,7 @@ BufferBackedObject.NestedArrayOfBufferBackedObjects = (length, descriptors) => {
     size,
     get: (dataView, byteOffset) =>
       new ArrayOfBufferBackedObjects(dataView.buffer, descriptors, {
-        byteOffset,
+        byteOffset: byteOffset + dataView.byteOffset,
         length,
       }),
     set: (dataView, byteOffset, value) => {

@@ -1,6 +1,6 @@
-import {assert, IsExact} from "conditional-type-checks";
+import { assert, IsExact } from "conditional-type-checks";
 
-import {BufferBackedObject, ArrayOfBufferBackedObjects} from ".";
+import { BufferBackedObject, ArrayOfBufferBackedObjects } from ".";
 
 const view = new BufferBackedObject(null as any, {
   id: BufferBackedObject.Uint16({ endianness: "little" }),
@@ -10,7 +10,7 @@ const view = new BufferBackedObject(null as any, {
     x: BufferBackedObject.Float64(),
     y: BufferBackedObject.Float64(),
     z: BufferBackedObject.Float64(),
-  })
+  }),
 });
 
 assert<IsExact<typeof view.id, number>>(true);
@@ -24,4 +24,4 @@ const descriptors = {
 };
 const view2 = new ArrayOfBufferBackedObjects(null as any, descriptors);
 
-assert<IsExact<typeof view2, Array<{id: number, name: string}>>>(true);
+assert<IsExact<typeof view2, Array<{ id: number; name: string }>>>(true);

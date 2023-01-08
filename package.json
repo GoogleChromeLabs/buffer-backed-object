@@ -13,27 +13,17 @@
     "build:bundle": "microbundle -f modern && microbundle -f umd",
     "build:types": "cp buffer-backed-object.d.ts dist/",
     "test": "run-p test:*",
-    "test:unit": "karmatic",
+    "test:unit": "vitest run --coverage",
     "test:types": "tsc --noEmit buffer-backed-object.type-test.ts"
   },
   "author": "Surma <surma@surma.dev>",
   "license": "Apache-2.0",
   "devDependencies": {
-    "conditional-type-checks": "^1.0.5",
-    "husky": "^4.2.3",
-    "karmatic": "^1.4.0",
-    "lint-staged": "^10.1.2",
-    "microbundle": "^0.12.0-next.8",
+    "@vitest/coverage-c8": "^0.26.3",
+    "conditional-type-checks": "^1.0.6",
+    "microbundle": "^0.15.1",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.0.4",
-    "webpack": "^4.42.1"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.{js,css,md}": "prettier --write"
+    "prettier": "^2.8.2",
+    "vitest": "^0.26.3"
   }
 }

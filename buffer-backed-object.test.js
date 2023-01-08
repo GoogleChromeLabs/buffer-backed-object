@@ -146,6 +146,57 @@ describe("ArrayOfBufferBackedObjects", function () {
     );
   });
 
+  it("handles nested BBO with nested arrays", function () {
+    const PathNodeDescription = {
+      type: BufferBackedObject.Uint8(),
+      x: BufferBackedObject.Uint32(),
+      y: BufferBackedObject.Uint32(),
+    };
+
+    const EnemyDescription = {
+      type: BufferBackedObject.Uint8(),
+      x: BufferBackedObject.Float32(),
+      y: BufferBackedObject.Float32(),
+      path: BufferBackedObject.NestedArrayOfBufferBackedObjects(
+        1,
+        PathNodeDescription
+      ),
+    };
+
+    const GameStateDescription = {
+      gametime: BufferBackedObject.Uint32(),
+      season: BufferBackedObject.Uint8(),
+      enemies: BufferBackedObject.NestedArrayOfBufferBackedObjects(
+        1,
+        EnemyDescription
+      ),
+    };
+    const gameStateBuffer = new ArrayBuffer(structSize(GameStateDescription));
+    const gameState = new BufferBackedObject(
+      gameStateBuffer,
+      GameStateDescription
+    );
+
+    gameState.gametime = 12345;
+    gameState.season = 3;
+
+    expect(gameState.enemies.length).toBe(1);
+    gameState.enemies[0].type = 1;
+    gameState.enemies[0].x = 512;
+    gameState.enemies[0].y = 0;
+    expect(gameState.enemies.length).toBe(1);
+    expect(JSON.stringify(gameState.enemies[0])).toBe(
+      JSON.stringify({ type: 1, x: 512, y: 0, path: [{ type: 0, x: 0, y: 0 }] })
+    );
+    expect(JSON.stringify(gameState)).toBe(
+      JSON.stringify({
+        gametime: 12345,
+        season: 3,
+        enemies: [{ type: 1, x: 512, y: 0, path: [{ type: 0, x: 0, y: 0 }] }],
+      })
+    );
+  });
+
   it("can return the buffer", function () {
     const buffer = new ArrayBuffer(22);
     const aosv = new ArrayOfBufferBackedObjects(buffer, {

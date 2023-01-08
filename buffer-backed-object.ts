@@ -145,10 +145,18 @@ export function BufferBackedObject<T extends Descriptors>(
   })[0];
 }
 
+export interface EndiannessOption {
+  endianness: "little" | "big";
+}
+
+export interface AlignOption {
+  align: number;
+}
+
 export function Uint16({
   endianness = "little",
   align = 2,
-} = {}): Descriptor<number> {
+}: Partial<EndiannessOption & AlignOption> = {}): Descriptor<number> {
   if (endianness !== "big" && endianness !== "little") {
     throw Error("Endianness needs to be either 'big' or 'little'");
   }
@@ -165,7 +173,7 @@ export function Uint16({
 export function Uint32({
   endianness = "little",
   align = 4,
-} = {}): Descriptor<number> {
+}: Partial<EndiannessOption & AlignOption> = {}): Descriptor<number> {
   if (endianness !== "big" && endianness !== "little") {
     throw Error("Endianness needs to be either 'big' or 'little'");
   }
@@ -182,7 +190,7 @@ export function Uint32({
 export function Int16({
   endianness = "little",
   align = 2,
-} = {}): Descriptor<number> {
+}: Partial<EndiannessOption & AlignOption> = {}): Descriptor<number> {
   if (endianness !== "big" && endianness !== "little") {
     throw Error("Endianness needs to be either 'big' or 'little'");
   }
@@ -199,7 +207,7 @@ export function Int16({
 export function Int32({
   endianness = "little",
   align = 4,
-} = {}): Descriptor<number> {
+}: Partial<EndiannessOption & AlignOption> = {}): Descriptor<number> {
   if (endianness !== "big" && endianness !== "little") {
     throw Error("Endianness needs to be either 'big' or 'little'");
   }
@@ -216,7 +224,7 @@ export function Int32({
 export function Float32({
   endianness = "little",
   align = 4,
-} = {}): Descriptor<number> {
+}: Partial<EndiannessOption & AlignOption> = {}): Descriptor<number> {
   if (endianness !== "big" && endianness !== "little") {
     throw Error("Endianness needs to be either 'big' or 'little'");
   }
@@ -234,7 +242,7 @@ export function Float32({
 export function Float64({
   endianness = "little",
   align = 8,
-} = {}): Descriptor<number> {
+}: Partial<EndiannessOption & AlignOption> = {}): Descriptor<number> {
   if (endianness !== "big" && endianness !== "little") {
     throw Error("Endianness needs to be either 'big' or 'little'");
   }
@@ -252,7 +260,7 @@ export function Float64({
 export function BigInt64({
   endianness = "little",
   align = 8,
-} = {}): Descriptor<bigint> {
+}: Partial<EndiannessOption & AlignOption> = {}): Descriptor<bigint> {
   if (endianness !== "big" && endianness !== "little") {
     throw Error("Endianness needs to be either 'big' or 'little'");
   }
@@ -270,7 +278,7 @@ export function BigInt64({
 export function BigUint64({
   endianness = "little",
   align = 8,
-} = {}): Descriptor<bigint> {
+}: Partial<EndiannessOption & AlignOption> = {}): Descriptor<bigint> {
   if (endianness !== "big" && endianness !== "little") {
     throw Error("Endianness needs to be either 'big' or 'little'");
   }

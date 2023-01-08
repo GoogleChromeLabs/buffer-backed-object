@@ -320,3 +320,25 @@ test("BufferBackedObject decodes items correctly", function () {
   expect(sdv.y).toBe(30);
   expect(sdv.texture).toBe(9);
 });
+
+test("BufferBackedObject decodes items correctly with custom align", function () {
+  const descriptor = {
+    id: BBO.Uint8(),
+    x: BBO.Float64({ endianness: "big", align: 1 }),
+    y: BBO.Float64({ endianness: "little", align: 1 }),
+    texture: BBO.Int32({ align: 1 }),
+    _: BBO.reserved(1),
+  };
+
+  const buffer = new ArrayBuffer(BBO.structSize(descriptor));
+  const dataView = new DataView(buffer);
+  dataView.setUint8(0 + 0, 1);
+  dataView.setFloat64(0 + 1, 20, false);
+  dataView.setFloat64(0 + 9, 30, true);
+  dataView.setInt32(0 + 17, 9, true);
+  const sdv = BBO.BufferBackedObject(buffer, descriptor);
+  expect(sdv.id).toBe(1);
+  expect(sdv.x).toBe(20);
+  expect(sdv.y).toBe(30);
+  expect(sdv.texture).toBe(9);
+});

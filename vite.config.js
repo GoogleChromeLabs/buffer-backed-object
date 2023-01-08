@@ -3,7 +3,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   build: {
     lib: {
-      entry: "./buffer-backed-object.js",
+      entry: "./buffer-backed-object.ts",
       formats: ["es", "cjs", "umd"],
       name: "buffer-backed-object",
       fileName: (format, entryName) => {

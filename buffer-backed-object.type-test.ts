@@ -1,27 +1,25 @@
-import {assert, IsExact} from "conditional-type-checks";
+import { assert, IsExact } from "conditional-type-checks";
 
-import {BufferBackedObject, ArrayOfBufferBackedObjects} from ".";
+import * as BBO from "./buffer-backed-object.js";
 
-const view = new BufferBackedObject(null as any, {
-  id: BufferBackedObject.Uint16({ endianness: "little" }),
-  name: BufferBackedObject.UTF8String(32),
-  data: BufferBackedObject.ArrayBuffer(100),
-  position: BufferBackedObject.NestedBufferBackedObject({
-    x: BufferBackedObject.Float64(),
-    y: BufferBackedObject.Float64(),
-    z: BufferBackedObject.Float64(),
-  })
+const view = BBO.BufferBackedObject(null as any, {
+  id: BBO.Uint16({ endianness: "little" }),
+  name: BBO.UTF8String(32),
+  position: BBO.NestedBufferBackedObject({
+    x: BBO.Float64(),
+    y: BBO.Float64(),
+    z: BBO.Float64(),
+  }),
 });
 
 assert<IsExact<typeof view.id, number>>(true);
 assert<IsExact<typeof view.name, string>>(true);
-assert<IsExact<typeof view.data, ArrayBuffer>>(true);
 assert<IsExact<typeof view.position.x, number>>(true);
 
 const descriptors = {
-  id: BufferBackedObject.Uint16({ endianness: "little" }),
-  name: BufferBackedObject.UTF8String(32),
+  id: BBO.Uint16({ endianness: "little" }),
+  name: BBO.UTF8String(32),
 };
-const view2 = new ArrayOfBufferBackedObjects(null as any, descriptors);
+const view2 = BBO.ArrayOfBufferBackedObjects(null as any, descriptors);
 
-assert<IsExact<typeof view2, Array<{id: number, name: string}>>>(true);
+assert<IsExact<typeof view2, Array<{ id: number; name: string }>>>(true);

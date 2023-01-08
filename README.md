@@ -16,25 +16,29 @@ When using [Web Workers], the performance of `postMessage()` (or the [structured
 
 [WebGL Buffers][webgl buffer] can store multiple attributes per vertex using [`vertexAttribPointer()`][vertexattribpointer]. These attributes can be a 3D position, but also other additional data like a normal vector, a color or a texture ID. The underlying buffer contains all the attributes for all the vertices in an interleaved format, which can make manipulating that data quite hard. With `ArrayOfBufferBackedObjects` you can manipulate each vertex individually. Additionally, `ArrayOfBufferBackedObjects` is populated lazily (see more below), allowing you to handle big arrays of vertices more efficiently.
 
+### WebGPU
+
+Similary, you can define structs in WGLS and read from/write to GPU memory buffers. With `BufferBackedObject` or `ArrayOfBufferBackedObjects`, you can manipulate those structs from JavaScript more easily and efficiently.
+
 ## Example
 
 ```js
-import { BufferBackedObject } from "buffer-backed-object";
+import * as BBO from "buffer-backed-object";
 
 const buffer = new ArrayBuffer(100);
-const view = new BufferBackedObject(buffer, {
-  id: BufferBackedObject.Uint16({ endianness: "big" }),
-  position: BufferBackedObject.NestedBufferBackedObject({
-    x: BufferBackedObject.Float32(),
-    y: BufferBackedObject.Float32(),
-    z: BufferBackedObject.Float32(),
+const view = BBO.BufferBackedObject(buffer, {
+  id: BBO.BufferBackedObject.Uint16({ endianness: "big" }),
+  position: BBO.NestedBufferBackedObject({
+    x: BBO.Float32(),
+    y: BBO.Float32(),
+    z: BBO.Float32(),
   }),
-  normal: BufferBackedObject.NestedBufferBackedObject({
-    x: BufferBackedObject.Float32(),
-    y: BufferBackedObject.Float32(),
-    z: BufferBackedObject.Float32(),
+  normal: BBO.NestedBufferBackedObject({
+    x: BBO.Float32(),
+    y: BBO.Float32(),
+    z: BBO.Float32(),
   }),
-  textureId: BufferBackedObject.Uint8(),
+  textureId: BBO.Uint8(),
 });
 
 view.id = 3;
@@ -47,25 +51,22 @@ console.log(JSON.stringify(view));
 `ArrayOfBufferBackedObjects` interprets the given `ArrayBuffer` as an _array_ of objects with the given schema:
 
 ```js
-import {
-  ArrayOfBufferBackedObjects,
-  BufferBackedObject,
-} from "buffer-backed-object";
+import * as BBO from "buffer-backed-object";
 
 const buffer = new ArrayBuffer(100);
-const view = new ArrayOfBufferBackedObjects(buffer, {
-  id: BufferBackedObject.Uint16({ endianness: "big" }),
-  position: BufferBackedObject.NestedBufferBackedObject({
-    x: BufferBackedObject.Float32(),
-    y: BufferBackedObject.Float32(),
-    z: BufferBackedObject.Float32(),
+const view = BBO.ArrayOfBufferBackedObjects(buffer, {
+  id: BBO.Uint16({ endianness: "big" }),
+  position: BBO.NestedBufferBackedObject({
+    x: BBO.Float32(),
+    y: BBO.Float32(),
+    z: BBO.Float32(),
   }),
-  normal: BufferBackedObject.NestedBufferBackedObject({
-    x: BufferBackedObject.Float32(),
-    y: BufferBackedObject.Float32(),
-    z: BufferBackedObject.Float32(),
+  normal: BBO.NestedBufferBackedObject({
+    x: BBO.Float32(),
+    y: BBO.Float32(),
+    z: BBO.Float32(),
   }),
-  textureId: BufferBackedObject.Uint8(),
+  textureId: BBO.Uint8(),
 });
 
 // The struct takes up a total of 27 bytes, so
@@ -86,35 +87,36 @@ console.log(JSON.stringify(view));
 
 The module has the following exports:
 
-### `new BufferBackedObject(buffer, descriptors, {byteOffset = 0})`
+### `function BufferBackedObject(buffer, descriptors, {byteOffset = 0})`
 
 The key/value pairs in the `descriptors` object must be declared in the same order as they are laid out in the buffer. The returned object has getters and setters for each of `descriptors` properties and de/serializes them `buffer`, starting at the given `byteOffset`.
 
-The following descriptor types are available as built-ins:
-
-- `BufferBackedObject.reserved(numBytes)`: A number of unused bytes. This field will now show up in the object.
-- `BufferBackedObject.Int8()`: An 8-bit signed integer
-- `BufferBackedObject.Uint8()`: An 8-bit unsigned integer
-- `BufferBackedObject.Int16({endianness = 'little'})`: An 16-bit signed integer
-- `BufferBackedObject.Uint16({endianness = 'little'})`: An 16-bit unsigned integer
-- `BufferBackedObject.Int32({endianness = 'little'})`: An 32-bit signed integer
-- `BufferBackedObject.Uint32({endianness = 'little'})`: An 32-bit unsigned integer
-- `BufferBackedObject.BigInt64({endianness = 'little'})`: An 64-bit signed [`BigInt`][bigint]
-- `BufferBackedObject.BigUint64({endianness = 'little'})`: An 64-bit unsigned [`BigInt`][bigint]
-- `BufferBackedObject.Float32({endianness = 'little'})`: An 32-bit IEEE754 float
-- `BufferBackedObject.Float64({endianness = 'little'})`: An 64-bit IEEE754 float (“double”)
-- `BufferBackedObject.UTF8String(maxBytes)`: A UTF-8 encoded string with the given maximum number of bytes. Trailing NULL bytes will be trimmed after decoding.
-- `BufferBackedObject.ArrayBuffer(size)`: An `ArrayBuffer` of the given size
-- `BufferBackedObject.NestedBufferBackedObject(descriptors)`: A nested `BufferBackedObject` with the given descriptors
-- `BufferBackedObject.NestedArrayOfBufferBackedObjects(numItems, descriptors)`: A nested `ArrayOfBufferBackedObjects` of length `numItems` with the given descriptors
-
-### `new ArrayOfBufferBackedObjects(buffer, descriptors, {byteOffset = 0, length = 0})`
+### `function ArrayOfBufferBackedObjects(buffer, descriptors, {byteOffset = 0, length = 0})`
 
 Like `BufferBackedObject`, but returns an _array_ of `BufferBackedObject`s. If `length` is 0, as much of the buffer is used as possible. The array is populated lazily under the hood for performance purposes. That is, the individual `BufferBackedObject`s will only be created when their index is accessed.
 
-### `structSize(descriptors)`
+### `function structSize(descriptors)`
 
 Returns the number of bytes required to store a value with the schema outlined by `descriptors`.
+
+### Descriptors
+
+The following descriptor types are available as individually exported functions
+
+- `function reserved(numBytes)`: A number of unused bytes. This field will now show up in the object.
+- `function Int8()`: An 8-bit signed integer
+- `function Uint8()`: An 8-bit unsigned integer
+- `function Int16({align = 2, endianness = 'little'})`: An 16-bit signed integer
+- `function Uint16({align = 2, endianness = 'little'})`: An 16-bit unsigned integer
+- `function Int32({align = 4, endianness = 'little'})`: An 32-bit signed integer
+- `function Uint32({align = 4, endianness = 'little'})`: An 32-bit unsigned integer
+- `function BigInt64({align = 8, endianness = 'little'})`: An 64-bit signed [`BigInt`][bigint]
+- `function BigUint64({align = 8, endianness = 'little'})`: An 64-bit unsigned [`BigInt`][bigint]
+- `function Float32({align = 4, endianness = 'little'})`: An 32-bit IEEE754 float
+- `function Float64({align = 8, endianness = 'little'})`: An 64-bit IEEE754 float (“double”)
+- `function UTF8String(maxBytes)`: A UTF-8 encoded string with the given maximum number of bytes. Trailing NULL bytes will be trimmed after decoding.
+- `function NestedBufferBackedObject(descriptors)`: A nested `BufferBackedObject` with the given descriptors
+- `function NestedArrayOfBufferBackedObjects(numItems, descriptors)`: A nested `ArrayOfBufferBackedObjects` of length `numItems` with the given descriptors
 
 ## Defining your own descriptor types
 
@@ -122,6 +124,7 @@ All the descriptor functions return an object with the following structure:
 
 ```js
 {
+  align?: 1, // Required aligment
   size: 4, // Size required by the type
   get(dataView, byteOffset) {
     // Decode the value at byteOffset using

@@ -3,45 +3,97 @@ import { expect, test } from "vitest";
 import * as BBO from "./buffer-backed-object.ts";
 
 test("structSize calculates the size of a struct correctly", function () {
-  const size = BBO.structSize({
-    id: BBO.Uint8(),
-    x: BBO.Float64(),
-    y: BBO.Int16(),
-    z: BBO.BigUint64(),
-    _: BBO.reserved(1),
-  });
-  expect(size).toBe(20);
+  {
+    const size = BBO.structSize({
+      id: BBO.Uint8(),
+    });
+    expect(size).toBe(1);
+  }
+
+  {
+    const size = BBO.structSize({
+      id: BBO.Uint16(),
+    });
+    expect(size).toBe(2);
+  }
+
+  {
+    const size = BBO.structSize({
+      id: BBO.Uint16(),
+      id2: BBO.Uint8(),
+    });
+    expect(size).toBe(4);
+  }
+
+  {
+    const size = BBO.structSize({
+      id: BBO.Uint8(),
+      id2: BBO.Uint16(),
+    });
+    expect(size).toBe(4);
+  }
+
+  {
+    const size = BBO.structSize({
+      id: BBO.Uint8(),
+      id2: BBO.Uint32(),
+      id3: BBO.Uint32(),
+    });
+    expect(size).toBe(12);
+  }
+
+  {
+    const size = BBO.structSize({
+      id: BBO.Uint8(), // 0...7
+      x: BBO.Float64({ endianness: "big" }), // 8...15
+      y: BBO.Float64({ endianness: "little" }), // 16...23
+      texture: BBO.Int32(), // 24...28
+      _: BBO.reserved(1), // 28...29
+    });
+    expect(size).toBe(32);
+  }
 });
 
 test("ArrayOfBufferBackedObjects calculates length correctly", function () {
-  // Add one stray byte
-  const { buffer } = new Uint8Array([0, 0, 1, 0, 2, 0, 1]);
-  const aosv = BBO.ArrayOfBufferBackedObjects(buffer, {
-    id: BBO.Uint8(),
-    _: BBO.reserved(1),
-  });
-  expect(aosv.length).toBe(3);
+  {
+    const buffer = new ArrayBuffer(7);
+    const aosv = BBO.ArrayOfBufferBackedObjects(buffer, {
+      id: BBO.Uint8(),
+      _: BBO.reserved(1),
+    });
+    expect(aosv.length).toBe(3);
+  }
+
+  {
+    const buffer = new ArrayBuffer(47);
+    const aosv = BBO.ArrayOfBufferBackedObjects(buffer, {
+      id: BBO.Uint8(),
+      i2: BBO.BigInt64(),
+    });
+    expect(aosv.length).toBe(2);
+  }
 });
 
 test("ArrayOfBufferBackedObjects decodes items correctly", function () {
   const descriptor = {
-    id: BBO.Uint8(),
-    x: BBO.Float64({ endianness: "big" }),
-    y: BBO.Float64({ endianness: "little" }),
-    texture: BBO.Int32(),
-    _: BBO.reserved(1),
+    id: BBO.Uint8(), // 0...7
+    x: BBO.Float64({ endianness: "big" }), // 8...15
+    y: BBO.Float64({ endianness: "little" }), // 16...23
+    texture: BBO.Int32(), // 24...27
+    _: BBO.reserved(1), // 28...29
   };
 
+  console.log(BBO.structSize(descriptor), BBO.structAlign(descriptor));
   const buffer = new ArrayBuffer(BBO.structSize(descriptor) * 2);
   const dataView = new DataView(buffer);
   dataView.setUint8(0 + 0, 1);
-  dataView.setUint8(22 + 0, 2);
-  dataView.setFloat64(0 + 1, 20, false);
-  dataView.setFloat64(0 + 9, 30, true);
-  dataView.setFloat64(22 + 1, 40, false);
-  dataView.setFloat64(22 + 9, 50, true);
-  dataView.setInt32(0 + 17, 9, true);
-  dataView.setInt32(22 + 17, 10, true);
+  dataView.setUint8(32 + 0, 2);
+  dataView.setFloat64(0 + 8, 20, false);
+  dataView.setFloat64(0 + 16, 30, true);
+  dataView.setFloat64(32 + 8, 40, false);
+  dataView.setFloat64(32 + 16, 50, true);
+  dataView.setInt32(0 + 24, 9, true);
+  dataView.setInt32(32 + 24, 10, true);
   const aosv = BBO.ArrayOfBufferBackedObjects(buffer, descriptor);
   expect(aosv[0].id).toBe(1);
   expect(aosv[1].id).toBe(2);
@@ -203,8 +255,8 @@ test("ArrayOfBufferBackedObjects can write items", function () {
   const aosv = BBO.ArrayOfBufferBackedObjects(buffer, descriptor);
   aosv[0].x = 10;
   aosv[1].x = 20;
-  expect(dataView.getFloat64(1, true)).toBe(10);
-  expect(dataView.getFloat64(11, true)).toBe(20);
+  expect(dataView.getFloat64(8, true)).toBe(10);
+  expect(dataView.getFloat64(32, true)).toBe(20);
 });
 
 test("ArrayOfBufferBackedObjects handles filter()", function () {
@@ -247,7 +299,7 @@ test("ArrayOfBufferBackedObjects can handle UTF8 strings", function () {
   expect(name2).toBe("Jason");
 });
 
-test("StructuredDataView decodes items correctly", function () {
+test("BufferBackedObject decodes items correctly", function () {
   const descriptor = {
     id: BBO.Uint8(),
     x: BBO.Float64({ endianness: "big" }),
@@ -259,9 +311,9 @@ test("StructuredDataView decodes items correctly", function () {
   const buffer = new ArrayBuffer(BBO.structSize(descriptor));
   const dataView = new DataView(buffer);
   dataView.setUint8(0 + 0, 1);
-  dataView.setFloat64(0 + 1, 20, false);
-  dataView.setFloat64(0 + 9, 30, true);
-  dataView.setInt32(0 + 17, 9, true);
+  dataView.setFloat64(0 + 8, 20, false);
+  dataView.setFloat64(0 + 16, 30, true);
+  dataView.setInt32(0 + 24, 9, true);
   const sdv = BBO.BufferBackedObject(buffer, descriptor);
   expect(sdv.id).toBe(1);
   expect(sdv.x).toBe(20);

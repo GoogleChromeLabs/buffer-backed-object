@@ -30,11 +30,11 @@ export function structSize(descriptors: Descriptors): number {
   return stride;
 }
 
-export function ArrayOfBufferBackedObjects(
+export function ArrayOfBufferBackedObjects<T extends Descriptors>(
   buffer: ArrayBuffer,
-  descriptors: Descriptors,
+  descriptors: T,
   { byteOffset = 0, length = 0 } = {}
-) {
+): Array<DecodedBuffer<T>> {
   const dataView = new DataView(buffer, byteOffset);
   // Accumulate the size of one struct
   let stride = 0;
@@ -112,15 +112,15 @@ export function ArrayOfBufferBackedObjects(
   });
 }
 
-export function BufferBackedObject(
+export function BufferBackedObject<T extends Descriptors>(
   buffer: ArrayBuffer,
-  descriptors: Descriptors,
+  descriptors: T,
   { byteOffset = 0 } = {}
-) {
+): DecodedBuffer<T> {
   return ArrayOfBufferBackedObjects(buffer, descriptors, { byteOffset })[0];
 }
 
-export function Uint16({ endianness = "little" } = {}): Descriptor {
+export function Uint16({ endianness = "little" } = {}): Descriptor<number> {
   if (endianness !== "big" && endianness !== "little") {
     throw Error("Endianness needs to be either 'big' or 'little'");
   }
@@ -133,7 +133,7 @@ export function Uint16({ endianness = "little" } = {}): Descriptor {
   };
 }
 
-export function Uint32({ endianness = "little" } = {}): Descriptor {
+export function Uint32({ endianness = "little" } = {}): Descriptor<number> {
   if (endianness !== "big" && endianness !== "little") {
     throw Error("Endianness needs to be either 'big' or 'little'");
   }
@@ -146,7 +146,7 @@ export function Uint32({ endianness = "little" } = {}): Descriptor {
   };
 }
 
-export function Int16({ endianness = "little" } = {}): Descriptor {
+export function Int16({ endianness = "little" } = {}): Descriptor<number> {
   if (endianness !== "big" && endianness !== "little") {
     throw Error("Endianness needs to be either 'big' or 'little'");
   }
@@ -159,7 +159,7 @@ export function Int16({ endianness = "little" } = {}): Descriptor {
   };
 }
 
-export function Int32({ endianness = "little" } = {}): Descriptor {
+export function Int32({ endianness = "little" } = {}): Descriptor<number> {
   if (endianness !== "big" && endianness !== "little") {
     throw Error("Endianness needs to be either 'big' or 'little'");
   }
@@ -172,7 +172,7 @@ export function Int32({ endianness = "little" } = {}): Descriptor {
   };
 }
 
-export function Float32({ endianness = "little" } = {}): Descriptor {
+export function Float32({ endianness = "little" } = {}): Descriptor<number> {
   if (endianness !== "big" && endianness !== "little") {
     throw Error("Endianness needs to be either 'big' or 'little'");
   }
@@ -186,7 +186,7 @@ export function Float32({ endianness = "little" } = {}): Descriptor {
   };
 }
 
-export function Float64({ endianness = "little" } = {}): Descriptor {
+export function Float64({ endianness = "little" } = {}): Descriptor<number> {
   if (endianness !== "big" && endianness !== "little") {
     throw Error("Endianness needs to be either 'big' or 'little'");
   }
@@ -200,7 +200,7 @@ export function Float64({ endianness = "little" } = {}): Descriptor {
   };
 }
 
-export function BigInt64({ endianness = "little" } = {}): Descriptor {
+export function BigInt64({ endianness = "little" } = {}): Descriptor<bigint> {
   if (endianness !== "big" && endianness !== "little") {
     throw Error("Endianness needs to be either 'big' or 'little'");
   }
@@ -214,7 +214,7 @@ export function BigInt64({ endianness = "little" } = {}): Descriptor {
   };
 }
 
-export function BigUint64({ endianness = "little" } = {}): Descriptor {
+export function BigUint64({ endianness = "little" } = {}): Descriptor<bigint> {
   if (endianness !== "big" && endianness !== "little") {
     throw Error("Endianness needs to be either 'big' or 'little'");
   }
@@ -228,7 +228,7 @@ export function BigUint64({ endianness = "little" } = {}): Descriptor {
   };
 }
 
-export function Uint8(): Descriptor {
+export function Uint8(): Descriptor<number> {
   return {
     size: 1,
     get: (dataView, byteOffset) => dataView.getUint8(byteOffset),
@@ -236,7 +236,7 @@ export function Uint8(): Descriptor {
   };
 }
 
-export function Int8(): Descriptor {
+export function Int8(): Descriptor<number> {
   return {
     size: 1,
     get: (dataView, byteOffset) => dataView.getInt8(byteOffset),
@@ -244,7 +244,9 @@ export function Int8(): Descriptor {
   };
 }
 
-export function NestedBufferBackedObject(descriptors: Descriptors): Descriptor {
+export function NestedBufferBackedObject<T extends Descriptors>(
+  descriptors: T
+): Descriptor<DecodedBuffer<T>> {
   const size = structSize(descriptors);
   return {
     size,
@@ -259,10 +261,10 @@ export function NestedBufferBackedObject(descriptors: Descriptors): Descriptor {
   };
 }
 
-export function NestedArrayOfBufferBackedObjects(
+export function NestedArrayOfBufferBackedObjects<T extends Descriptors>(
   length: number,
-  descriptors: Descriptors
-): Descriptor {
+  descriptors: T
+): Descriptor<Array<DecodedBuffer<T>>> {
   const size = structSize(descriptors) * length;
   return {
     size,
@@ -277,7 +279,7 @@ export function NestedArrayOfBufferBackedObjects(
   };
 }
 
-export function UTF8String(maxBytes: number): Descriptor {
+export function UTF8String(maxBytes: number): Descriptor<string> {
   return {
     size: maxBytes,
     get: (dataView, byteOffset) =>
@@ -293,6 +295,6 @@ export function UTF8String(maxBytes: number): Descriptor {
   };
 }
 
-export function reserved(size: number): Descriptor {
+export function reserved(size: number): Descriptor<void> {
   return { size, get() {}, set() {} };
 }

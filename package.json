@@ -9,9 +9,8 @@
   "main": "dist/buffer-backed-object.umd.js",
   "types": "dist/buffer-backed-object.d.ts",
   "scripts": {
-    "build": "mkdir -p dist && run-s build:bundle build:types",
+    "build": "mkdir -p dist && run-p build:*",
     "build:bundle": "vite build",
-    "build:types": "cp buffer-backed-object.d.ts dist/",
     "test": "run-p test:*",
     "test:unit": "vitest run --coverage",
     "test:types": "tsc --noEmit buffer-backed-object.type-test.ts"

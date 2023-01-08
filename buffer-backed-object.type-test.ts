@@ -5,7 +5,6 @@ import * as BBO from "./buffer-backed-object.js";
 const view = BBO.BufferBackedObject(null as any, {
   id: BBO.Uint16({ endianness: "little" }),
   name: BBO.UTF8String(32),
-  data: BBO.ArrayBuffer(100),
   position: BBO.NestedBufferBackedObject({
     x: BBO.Float64(),
     y: BBO.Float64(),
@@ -15,7 +14,6 @@ const view = BBO.BufferBackedObject(null as any, {
 
 assert<IsExact<typeof view.id, number>>(true);
 assert<IsExact<typeof view.name, string>>(true);
-assert<IsExact<typeof view.data, ArrayBuffer>>(true);
 assert<IsExact<typeof view.position.x, number>>(true);
 
 const descriptors = {

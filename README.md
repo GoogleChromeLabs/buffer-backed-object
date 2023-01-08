@@ -106,14 +106,14 @@ The following descriptor types are available as individually exported functions
 - `function reserved(numBytes)`: A number of unused bytes. This field will now show up in the object.
 - `function Int8()`: An 8-bit signed integer
 - `function Uint8()`: An 8-bit unsigned integer
-- `function Int16({endianness = 'little'})`: An 16-bit signed integer
-- `function Uint16({endianness = 'little'})`: An 16-bit unsigned integer
-- `function Int32({endianness = 'little'})`: An 32-bit signed integer
-- `function Uint32({endianness = 'little'})`: An 32-bit unsigned integer
-- `function BigInt64({endianness = 'little'})`: An 64-bit signed [`BigInt`][bigint]
-- `function BigUint64({endianness = 'little'})`: An 64-bit unsigned [`BigInt`][bigint]
-- `function Float32({endianness = 'little'})`: An 32-bit IEEE754 float
-- `function Float64({endianness = 'little'})`: An 64-bit IEEE754 float (“double”)
+- `function Int16({align = 2, endianness = 'little'})`: An 16-bit signed integer
+- `function Uint16({align = 2, endianness = 'little'})`: An 16-bit unsigned integer
+- `function Int32({align = 4, endianness = 'little'})`: An 32-bit signed integer
+- `function Uint32({align = 4, endianness = 'little'})`: An 32-bit unsigned integer
+- `function BigInt64({align = 8, endianness = 'little'})`: An 64-bit signed [`BigInt`][bigint]
+- `function BigUint64({align = 8, endianness = 'little'})`: An 64-bit unsigned [`BigInt`][bigint]
+- `function Float32({align = 4, endianness = 'little'})`: An 32-bit IEEE754 float
+- `function Float64({align = 8, endianness = 'little'})`: An 64-bit IEEE754 float (“double”)
 - `function UTF8String(maxBytes)`: A UTF-8 encoded string with the given maximum number of bytes. Trailing NULL bytes will be trimmed after decoding.
 - `function NestedBufferBackedObject(descriptors)`: A nested `BufferBackedObject` with the given descriptors
 - `function NestedArrayOfBufferBackedObjects(numItems, descriptors)`: A nested `ArrayOfBufferBackedObjects` of length `numItems` with the given descriptors
@@ -124,6 +124,7 @@ All the descriptor functions return an object with the following structure:
 
 ```js
 {
+  align?: 1, // Required aligment
   size: 4, // Size required by the type
   get(dataView, byteOffset) {
     // Decode the value at byteOffset using

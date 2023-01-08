@@ -9,8 +9,8 @@
   "main": "dist/buffer-backed-object.umd.js",
   "types": "dist/buffer-backed-object.d.ts",
   "scripts": {
-    "build": "mkdir -p dist && run-p build:*",
-    "build:bundle": "microbundle -f modern && microbundle -f umd",
+    "build": "mkdir -p dist && run-s build:bundle build:types",
+    "build:bundle": "vite build",
     "build:types": "cp buffer-backed-object.d.ts dist/",
     "test": "run-p test:*",
     "test:unit": "vitest run --coverage",
@@ -21,9 +21,8 @@
   "devDependencies": {
     "@vitest/coverage-c8": "^0.26.3",
     "conditional-type-checks": "^1.0.6",
-    "microbundle": "^0.15.1",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.8.2",
+    "vite": "^4.0.4",
     "vitest": "^0.26.3"
   }
 }

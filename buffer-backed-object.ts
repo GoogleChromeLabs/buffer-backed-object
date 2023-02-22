@@ -55,7 +55,6 @@ export function ArrayOfBufferBackedObjects<T extends Descriptors>(
   { byteOffset = 0, length = 0, align = structAlign(descriptors) } = {}
 ): Array<DecodedBuffer<T>> {
   const dataView = new DataView(buffer, byteOffset);
-  // Accumulate the size of one struct
   let stride = 0;
   // Copy the descriptors.
   // @ts-ignore We will fix up the missing `offset` below
@@ -316,11 +315,11 @@ export function NestedBufferBackedObject<T extends Descriptors>(
 ): Descriptor<DecodedBuffer<T>> {
   const size = structSize(descriptors);
   return {
-    align: Object.values(descriptors)[0].align ?? 1,
+    align: structAlign(descriptors),
     size,
     get: (dataView, byteOffset) =>
       ArrayOfBufferBackedObjects(dataView.buffer, descriptors, {
-        byteOffset,
+        byteOffset: dataView.byteOffset + byteOffset,
         length: 1,
       })[0],
     set: (dataView, byteOffset, value) => {

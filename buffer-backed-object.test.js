@@ -342,3 +342,73 @@ test("BufferBackedObject decodes items correctly with custom align", function ()
   expect(sdv.y).toBe(30);
   expect(sdv.texture).toBe(9);
 });
+
+test("NestedArrayOfBufferBackedObjects test raw bufferview", function () {
+  const BBOVec3 = BBO.NestedBufferBackedObject({
+    x: BBO.Float32(),
+    y: BBO.Float32(),
+    z: BBO.Float32(),
+  });
+  const structDesc = {
+    ambient: BBOVec3,
+    lightCount: BBO.Float32(),
+    lights: BBO.NestedArrayOfBufferBackedObjects(1, {
+      position: BBOVec3,
+      range: BBO.Float32(),
+      color: BBOVec3,
+      intensity: BBO.Float32(),
+    }),
+  };
+  const buffer = new ArrayBuffer(BBO.structSize(structDesc));
+  const view = BBO.BufferBackedObject(buffer, structDesc);
+  view.ambient.x = 1;
+  view.ambient.y = 2;
+  view.ambient.z = 3;
+  view.lightCount = 4;
+  view.lights.forEach(light => {
+    light.position.x = 5;
+    light.position.y = 6;
+    light.position.z = 7;
+    light.range = 8;
+    light.color.x = 9;
+    light.color.y = 10;
+    light.color.z = 11;
+    light.intensity = 12;
+  });
+  const f32 = new Float32Array(buffer);
+
+  expect(f32[0]).toBe(1);
+  expect(f32[1]).toBe(2);
+  expect(f32[2]).toBe(3);
+  expect(f32[3]).toBe(4);
+  expect(f32[4]).toBe(5);
+  expect(f32[5]).toBe(6);
+  expect(f32[6]).toBe(7);
+  expect(f32[7]).toBe(8);
+  expect(f32[8]).toBe(9);
+  expect(f32[9]).toBe(10);
+  expect(f32[10]).toBe(11);
+  expect(f32[11]).toBe(12);
+});
+
+test("Nested NestedBufferBackedObjects", function () {
+  const structDesc = {
+    somethingElse: BBO.Float32(),
+    nest1: BBO.NestedBufferBackedObject({
+      somethingElse: BBO.Float32(),
+      nest2: BBO.NestedBufferBackedObject( {
+        value: BBO.Float32()
+      })
+    }),
+  };
+  const buffer = new ArrayBuffer(BBO.structSize(structDesc));
+  const view = BBO.BufferBackedObject(buffer, structDesc);
+  view.somethingElse = 1;
+  view.nest1.somethingElse = 2;
+  view.nest1.nest2.value = 3;
+  const f32 = new Float32Array(buffer);
+
+  expect(f32[0]).toBe(1);
+  expect(f32[1]).toBe(2);
+  expect(f32[2]).toBe(3);
+});

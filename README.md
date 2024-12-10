@@ -27,7 +27,7 @@ import * as BBO from "buffer-backed-object";
 
 const buffer = new ArrayBuffer(100);
 const view = BBO.BufferBackedObject(buffer, {
-  id: BBO.BufferBackedObject.Uint16({ endianness: "big" }),
+  id: BBO.Uint16({ endianness: "big" }),
   position: BBO.NestedBufferBackedObject({
     x: BBO.Float32(),
     y: BBO.Float32(),

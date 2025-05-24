@@ -5,7 +5,7 @@
   "repository": "github:GoogleChromeLabs/buffer-backed-object",
   "homepage": "https://github.com/GoogleChromeLabs/buffer-backed-object#readme",
   "source": "buffer-backed-object.js",
-  "module": "dist/buffer-backed-object.modern.js",
+  "module": "dist/buffer-backed-object.js",
   "main": "dist/buffer-backed-object.umd.js",
   "types": "dist/buffer-backed-object.d.ts",
   "scripts": {
